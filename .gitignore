@@ -1,0 +1,16 @@
+# Dependencias y compilados
+node_modules/
+dist/
+
+# Secretos y datos locales
+.env
+.env.*
+!.env.example
+*.db
+*.db-wal
+*.db-shm
+
+# Sistema y editor
+.DS_Store
+Thumbs.db
+*.log
