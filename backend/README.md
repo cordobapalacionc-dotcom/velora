@@ -132,6 +132,8 @@ Las respuestas exitosas vienen en `{ "datos": ... }`. Los errores siempre tienen
 { "error": { "codigo": "SOLICITUD_INVALIDA", "mensaje": "...", "detalles": [{ "campo": "body.correo", "mensaje": "..." }] } }
 ```
 
+`GET /api` devuelve un índice con todas las rutas disponibles y `GET /api/salud` confirma que el servidor está vivo.
+
 Códigos HTTP: `400` datos inválidos · `401` sin sesión · `403` sin permiso · `404` no existe · `409` conflicto · `422` regla de negocio.
 
 ### Autenticación
@@ -160,6 +162,21 @@ La contraseña debe tener entre 8 y 72 caracteres, con al menos una letra y un n
 | POST   | `/hoteles/:id/habitaciones`              | admin   | `{ nombre, precio, capacidad, detalle?, imagen?, destacado? }` |
 | PATCH  | `/hoteles/:id/habitaciones/:habitacionId`| admin   |                                                            |
 | DELETE | `/hoteles/:id/habitaciones/:habitacionId`| admin   | 409 si tiene reservas; 422 si es la última                 |
+
+### Imágenes
+
+| Método | Ruta              | Acceso | Notas                                                                 |
+| ------ | ----------------- | ------ | --------------------------------------------------------------------- |
+| POST   | `/imagenes`       | admin  | `multipart/form-data` con el archivo en el campo `imagen` → `{ url, nombre, tipo, tamano }` |
+| GET    | `/uploads/<nombre>` | público | Sirve la imagen (fuera de `/api`, p. ej. `http://localhost:4000/uploads/…`) |
+
+- Solo se aceptan **JPG, PNG y WebP**, de máximo 5 MB (`IMAGEN_MAX_MB`). El formato se comprueba por el
+  contenido real del archivo, no por la extensión: un `.exe` o un `.svg` renombrado a `.png` se rechaza.
+  SVG no se admite porque puede contener JavaScript.
+- Se guardan en `backend/uploads/` (`UPLOADS_RUTA`) con un nombre aleatorio (UUID). Esa carpeta no se sube a GitHub.
+- La base de datos guarda solo la **URL** que devuelve la API; se usa en el campo `imagen` de hoteles y habitaciones.
+- Si publicas el backend detrás de un dominio, define `URL_PUBLICA` para que las URLs devueltas usen ese dominio.
+- Borrar un hotel o una habitación no borra su archivo de imagen.
 
 ### Reservas (todas requieren sesión)
 

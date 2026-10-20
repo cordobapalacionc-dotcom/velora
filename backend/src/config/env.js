@@ -20,6 +20,9 @@ const esquemaEnv = z
     CORS_ORIGENES: z.string().default('http://localhost:5173'),
     TARIFA_LIMPIEZA: z.coerce.number().int().min(0).default(180000),
     IMPUESTOS_PORCENTAJE: z.coerce.number().min(0).max(1).default(0.19),
+    UPLOADS_RUTA: z.string().min(1).default('uploads'),
+    IMAGEN_MAX_MB: z.coerce.number().positive().max(20).default(5),
+    URL_PUBLICA: z.url().optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === 'production' && (!env.JWT_SECRETO || env.JWT_SECRETO.length < 32)) {
@@ -50,6 +53,12 @@ export const config = Object.freeze({
     expiracion: env.JWT_EXPIRACION,
   }),
   corsOrigenes: env.CORS_ORIGENES.split(',').map((o) => o.trim()).filter(Boolean),
+  imagenes: Object.freeze({
+    carpeta: resolve(RAIZ_BACKEND, env.UPLOADS_RUTA),
+    maxBytes: Math.round(env.IMAGEN_MAX_MB * 1024 * 1024),
+    // Base para construir la URL pública de cada imagen. Si no se define, se usa el host de la petición.
+    urlPublica: env.URL_PUBLICA?.replace(/\/+$/, ''),
+  }),
   reservas: Object.freeze({
     tarifaLimpieza: env.TARIFA_LIMPIEZA,
     impuestosPorcentaje: env.IMPUESTOS_PORCENTAJE,

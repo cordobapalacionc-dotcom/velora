@@ -215,6 +215,13 @@ describe('Reservas', () => {
 })
 
 describe('Robustez', () => {
+  test('GET /api responde con el índice de rutas', async () => {
+    const { estado, json } = await api('GET', '/api')
+    assert.equal(estado, 200)
+    assert.equal(json.estado, 'ok')
+    assert.ok(json.rutas.hoteles.includes('GET /api/hoteles/:id'))
+  })
+
   test('JSON malformado devuelve 400 y rutas inexistentes 404', async () => {
     const r = await fetch(`${base}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{malo' })
     assert.equal(r.status, 400)

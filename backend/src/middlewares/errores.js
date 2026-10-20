@@ -15,6 +15,14 @@ function traducirError(error) {
   if (error.type === 'entity.parse.failed') return errores.solicitudInvalida('El cuerpo de la solicitud no es JSON válido.')
   if (error.type === 'entity.too.large') return new AppError(413, 'CARGA_DEMASIADO_GRANDE', 'El cuerpo de la solicitud es demasiado grande.')
 
+  if (error.name === 'MulterError') {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      const mb = config.imagenes.maxBytes / (1024 * 1024)
+      return new AppError(413, 'CARGA_DEMASIADO_GRANDE', `La imagen no puede superar ${mb} MB.`)
+    }
+    return errores.solicitudInvalida('Envía una sola imagen en el campo "imagen" (multipart/form-data).')
+  }
+
   if (error.code === 'ERR_SQLITE_ERROR') {
     // Otra transacción mantuvo el bloqueo más allá de busy_timeout (incluye BUSY_RECOVERY/BUSY_SNAPSHOT).
     if ((error.errcode & 0xff) === SQLITE_BUSY) {
