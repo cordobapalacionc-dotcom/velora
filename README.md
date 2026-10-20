@@ -58,7 +58,8 @@ Las cuentas demo solo existen en desarrollo; el backend no las crea en producci�
 - **Sin reservas simultáneas de una misma habitación**: transacciones, inserción condicional con
   subconsulta `NOT EXISTS` y triggers en la base de datos.
   [Ver cómo funciona](backend/README.md#reservas-simultáneas).
-- 23 pruebas automáticas de integración y concurrencia (`cd backend && npm test`).
+- Subida de imágenes desde el panel de administración (JPG, PNG o WebP, verificadas por su contenido).
+- 29 pruebas automáticas de integración, concurrencia e imágenes (`cd backend && npm test`).
 
 Documentación completa de la API, sus endpoints y sus reglas: [`backend/README.md`](backend/README.md).
 

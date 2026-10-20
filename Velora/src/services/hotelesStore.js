@@ -7,20 +7,38 @@ const CLAVE_VERSION = 'velora_hoteles_version'
 // Sube este número cada vez que se agreguen habitaciones o campos nuevos a la semilla,
 // para que los hoteles ya guardados en el navegador se actualicen una sola vez sin
 // perder los cambios que haya hecho el administrador.
-const VERSION_SEMILLA = 2
+// v3: fotos coherentes con cada destino y colecciones por hotel.
+const VERSION_SEMILLA = 3
+
+// Fotos de habitación que traía la semilla hasta la v2. Solo esas se reemplazan al actualizar:
+// si el admin ya puso su propia foto, se respeta.
+const FOTOS_HABITACION_ANTIGUAS = [
+  'photo-1566073771259', 'photo-1611892440504', 'photo-1571003123894', 'photo-1571896349842',
+  'photo-1570077188670', 'photo-1493976040374', 'photo-1476514525535', 'photo-1583531352515',
+  'photo-1447933601403',
+]
+const esFotoAntigua = (url = '') => FOTOS_HABITACION_ANTIGUAS.some((id) => url.includes(id))
 
 function fusionarConSemilla(guardados) {
   return guardados.map((hotelGuardado) => {
     const hotelSemilla = hotelesSemilla.find((h) => h.id === hotelGuardado.id)
-    if (!hotelSemilla) return hotelGuardado
+    if (!hotelSemilla) return { colecciones: [], ...hotelGuardado }
 
     const idsExistentes = new Set(hotelGuardado.habitaciones.map((h) => h.id))
     const habitacionesFaltantes = hotelSemilla.habitaciones.filter((h) => !idsExistentes.has(h.id))
 
     return {
       ...hotelGuardado,
+      // La galería y las colecciones de un hotel no se pueden editar desde el panel,
+      // así que se toman de la semilla sin riesgo de perder cambios del admin.
+      imagenes: hotelSemilla.imagenes,
+      colecciones: hotelSemilla.colecciones,
       habitaciones: [
-        ...hotelGuardado.habitaciones.map((h) => ({ capacidad: 2, ...h })),
+        ...hotelGuardado.habitaciones.map((h) => {
+          const semilla = hotelSemilla.habitaciones.find((s) => s.id === h.id)
+          const imagen = semilla && esFotoAntigua(h.imagen) ? semilla.imagen : h.imagen
+          return { capacidad: 2, ...h, imagen }
+        }),
         ...habitacionesFaltantes,
       ],
     }
@@ -105,6 +123,7 @@ export function crearHotel(datos) {
     id: generarId(datos.nombre),
     nombre: datos.nombre.trim(),
     destinoId: datos.destinoId,
+    colecciones: [],
     ubicacion: datos.ubicacion.trim(),
     calificacion: 0,
     numResenas: 0,

@@ -5,8 +5,12 @@
   --marino-suave: #23282f;
   --dorado: #b8925a;
   --dorado-suave: #d8b98a;
+  /* Dorado para TEXTO y BOTONES: contraste AA (5.4:1 con texto blanco, 5:1 sobre crema).
+     --dorado queda para detalles decorativos: estrellas, barras, bordes. */
+  --dorado-texto: #86652f;
+  --dorado-texto-hover: #74572a;
   --texto: #3c3833;
-  --texto-suave: #766f65;
+  --texto-suave: #6b645a;
   --borde: #e5ddcc;
   --blanco: #ffffff;
 
@@ -18,6 +22,7 @@
   background: var(--crema);
   font-family: var(--sans);
   font-synthesis: none;
+  font-variant-numeric: lining-nums;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -94,11 +99,11 @@ select {
 }
 
 .btn--dorado {
-  background: var(--dorado);
+  background: var(--dorado-texto);
   color: var(--blanco);
 }
 .btn--dorado:hover {
-  background: #a37f4a;
+  background: var(--dorado-texto-hover);
 }
 
 .btn--fantasma {
@@ -358,7 +363,7 @@ select {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-size: 12px;
-  color: var(--dorado);
+  color: var(--dorado-texto);
   margin: 0 0 12px;
   text-align: center;
 }
@@ -390,7 +395,7 @@ select {
 /* Destinos */
 .grid-destinos {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
@@ -447,7 +452,7 @@ select {
   height: 48px;
   border-radius: 50%;
   border: 1px solid var(--dorado);
-  color: var(--dorado);
+  color: var(--dorado-texto);
   font-size: 18px;
   margin-bottom: 16px;
 }
@@ -587,6 +592,11 @@ select {
   font-size: 14px;
   color: #cfcabf;
 }
+.footer__columna a:hover {
+  color: var(--blanco);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .footer__newsletter h4 {
   font-size: 13px;
@@ -603,11 +613,13 @@ select {
 
 .footer__newsletter-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .footer__newsletter-form input {
-  flex: 1;
+  flex: 1 1 160px;
+  min-width: 0;
   padding: 10px 12px;
   border-radius: 4px;
   border: 1px solid #3a3f48;
@@ -726,7 +738,7 @@ select {
   margin: 0 auto;
   padding: 32px;
   display: grid;
-  grid-template-columns: 220px 1fr 320px;
+  grid-template-columns: 240px minmax(0, 1fr);
   gap: 28px;
   align-items: start;
 }
@@ -744,10 +756,24 @@ select {
   margin-bottom: 16px;
 }
 .filtros__grupo {
-  margin-bottom: 20px;
+  margin: 0 0 20px;
+  padding: 0;
+  border: none;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+.filtros__grupo > legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--marino);
+}
+.resultados__encabezado .seccion__etiqueta {
+  text-align: left;
+  margin-bottom: 4px;
 }
 .filtros__grupo > span {
   font-weight: 600;
@@ -796,33 +822,6 @@ select {
   gap: 20px;
 }
 
-.resultados__vacio {
-  color: var(--texto-suave);
-  padding: 40px 0;
-}
-
-.mapa-lateral {
-  position: sticky;
-  top: 96px;
-}
-.mapa-lateral__marco {
-  background: var(--crema-suave);
-  border: 1px dashed var(--dorado-suave);
-  border-radius: 8px;
-  height: 420px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 24px;
-  gap: 8px;
-  color: var(--texto-suave);
-}
-.mapa-lateral__marco span {
-  font-weight: 600;
-  color: var(--marino);
-}
 
 /* Página de hotel */
 .pagina-hotel {
@@ -837,7 +836,7 @@ select {
   margin-bottom: 16px;
 }
 .migas a:hover {
-  color: var(--dorado);
+  color: var(--dorado-texto);
 }
 
 .pagina-hotel__encabezado h1 {
@@ -963,7 +962,7 @@ select {
 .etiqueta-destacado {
   font-size: 10px;
   text-transform: uppercase;
-  background: var(--dorado);
+  background: var(--dorado-texto);
   color: var(--blanco);
   padding: 3px 8px;
   border-radius: 3px;
@@ -1065,7 +1064,6 @@ select {
 }
 .panel-reserva__fechas input:focus {
   outline: none;
-  color: var(--dorado);
 }
 .panel-reserva__huespedes {
   border: 1px solid var(--borde);
@@ -1086,7 +1084,6 @@ select {
 }
 .panel-reserva__huespedes select:focus {
   outline: none;
-  color: var(--dorado);
 }
 .panel-reserva__resumen {
   border-top: 1px solid var(--borde);
@@ -1237,12 +1234,12 @@ select {
 .pagina-login__olvido {
   display: block;
   text-align: center;
-  margin-top: 20px;
+  margin: 20px auto 0;
   font-size: 13px;
   color: var(--texto-suave);
 }
 .pagina-login__olvido:hover {
-  color: var(--dorado);
+  color: var(--dorado-texto);
 }
 
 /* Menú de usuario: enlaces a paneles */
@@ -1544,6 +1541,349 @@ select {
   border-color: var(--dorado);
 }
 
+/* Campo de imagen con subida de archivo */
+.subir-imagen {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.subir-imagen__etiqueta {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--marino);
+}
+.subir-imagen__cuerpo {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.subir-imagen__vista {
+  flex: 0 0 160px;
+  aspect-ratio: 4 / 3;
+  border: 1px dashed var(--borde);
+  border-radius: 6px;
+  background: var(--blanco);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+.subir-imagen__vista img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.subir-imagen__controles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.subir-imagen__fila {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.subir-imagen__fila .btn {
+  padding: 10px 18px;
+  font-size: 12px;
+}
+.subir-imagen__fila .btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.subir-imagen__quitar {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--texto-suave);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.subir-imagen__quitar:hover {
+  color: var(--marino);
+}
+.subir-imagen__ayuda {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+.form-hotel .subir-imagen label {
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+/* ===================== Accesibilidad: foco visible ===================== */
+/* Anillo dorado solo al navegar con teclado (no aparece al hacer clic con el ratón). */
+:focus-visible {
+  outline: 2px solid var(--dorado-texto);
+  outline-offset: 2px;
+}
+.navbar :focus-visible,
+.footer :focus-visible {
+  outline-color: var(--dorado-suave);
+}
+/* Campos sin borde propio: el foco se marca en el contenedor */
+.search-bar__campo:focus-within,
+.panel-reserva__fechas label:focus-within,
+.panel-reserva__huespedes:focus-within {
+  box-shadow: inset 0 0 0 2px var(--dorado-texto);
+  border-radius: 6px;
+}
+.pagina-login__form input:focus-visible,
+.form-hotel input:focus-visible,
+.form-hotel select:focus-visible,
+.form-hotel textarea:focus-visible,
+.dashboard__buscador:focus-visible,
+.dashboard__filtros select:focus-visible,
+.resultados__orden select:focus-visible,
+.footer__newsletter-form input:focus-visible {
+  outline: 2px solid var(--dorado-texto);
+  outline-offset: 1px;
+}
+
+/* Las secciones con ancla no quedan tapadas por el menú fijo */
+.seccion[id] {
+  scroll-margin-top: 88px;
+}
+
+/* ===================== Íconos de línea ===================== */
+.icono-en-linea {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.opcion-habitacion__capacidad.icono-en-linea {
+  display: flex;
+}
+.icono-en-linea svg {
+  flex-shrink: 0;
+  color: var(--dorado-texto);
+}
+
+/* ===================== Habitaciones: selección ===================== */
+.btn--seleccionada {
+  background: #f6efe2;
+  border-color: var(--dorado-texto);
+  color: var(--dorado-texto);
+  cursor: default;
+}
+.opcion-habitacion .btn--fantasma {
+  border-color: var(--borde);
+  background: var(--blanco);
+}
+.opcion-habitacion .btn--fantasma:hover {
+  border-color: var(--marino);
+  background: var(--marino);
+  color: var(--blanco);
+}
+
+/* ===================== Panel de reserva sin fechas ===================== */
+.panel-reserva__pista {
+  border-top: 1px solid var(--borde);
+  padding: 16px 0 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--texto-suave);
+  text-align: center;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ===================== Filtros de resultados ===================== */
+.filtros__encabezado {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.filtros__encabezado h3 {
+  margin-bottom: 0;
+}
+.filtros__limpiar,
+.enlace-boton {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--dorado-texto);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.filtros__opciones label {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.resultados__coleccion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+/* ===================== Estados vacíos ===================== */
+.estado-vacio {
+  border: 1px dashed var(--borde);
+  border-radius: 10px;
+  background: var(--blanco);
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.estado-vacio__icono {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--crema-suave);
+  color: var(--dorado-texto);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.estado-vacio h2 {
+  font-size: 24px;
+}
+.estado-vacio p {
+  color: var(--texto-suave);
+  max-width: 420px;
+}
+.estado-vacio__sugerencias {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--crema);
+  font-size: 13px;
+  color: var(--marino);
+}
+.chip:hover {
+  border-color: var(--dorado-texto);
+}
+
+/* ===================== Mis reservas ===================== */
+.pagina-mis-reservas {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+.pagina-mis-reservas .seccion__etiqueta {
+  text-align: left;
+}
+.pagina-mis-reservas > h1 {
+  margin-bottom: 28px;
+}
+.lista-reservas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.tarjeta-reserva {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: center;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 16px;
+}
+.tarjeta-reserva img {
+  width: 160px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.tarjeta-reserva h2 {
+  font-size: 22px;
+  margin: 6px 0 2px;
+}
+.tarjeta-reserva__habitacion {
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+.tarjeta-reserva__datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--texto);
+}
+.tarjeta-reserva__acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  text-align: right;
+}
+.tarjeta-reserva__total {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--marino);
+}
+.tarjeta-reserva__codigo {
+  font-size: 12px;
+  color: var(--texto-suave);
+  letter-spacing: 0.04em;
+}
+.tarjeta-reserva h2 a:hover {
+  color: var(--dorado-texto);
+}
+.panel-reserva__confirmacion a {
+  display: inline-block;
+  margin-top: 8px;
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* ===================== Login: ayuda de contraseña ===================== */
+.pagina-login__ayuda {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--texto-suave);
+  text-align: center;
+  background: var(--crema-suave);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+/* ===================== Tamaño táctil de acciones de tabla ===================== */
+.tabla__accion {
+  min-height: 36px;
+}
+
+/* Las columnas de grid crecen por defecto hasta el ancho de su contenido más largo
+   (min-width: auto) y empujan la página hacia los lados. Con min-width: 0 pueden encogerse. */
+.pagina-hotel__cuerpo > *,
+.pagina-resultados__contenido > *,
+.footer__contenido > * {
+  min-width: 0;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .grid-destinos,
@@ -1553,8 +1893,7 @@ select {
   .pagina-resultados__contenido {
     grid-template-columns: 1fr;
   }
-  .filtros,
-  .mapa-lateral {
+  .filtros {
     position: static;
   }
   .pagina-hotel__cuerpo {
@@ -1577,6 +1916,15 @@ select {
   }
   .form-hotel__grid {
     grid-template-columns: 1fr;
+  }
+  .subir-imagen__cuerpo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .subir-imagen__vista {
+    flex-basis: auto;
+    width: 100%;
+    max-width: 320px;
   }
 }
 
@@ -1642,5 +1990,141 @@ select {
   }
   .dashboard__barra-valor {
     text-align: left;
+  }
+
+  /* Márgenes laterales de 16 px en celular (en escritorio son 32 px o más) */
+  .navbar__contenido {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  .seccion {
+    padding: 56px 16px;
+  }
+  .footer__contenido {
+    padding: 48px 16px 24px;
+  }
+  .pagina-resultados__busqueda,
+  .pagina-resultados__contenido {
+    padding: 16px;
+  }
+  .pagina-hotel {
+    padding: 16px 16px 56px;
+  }
+  .pagina-dashboard {
+    padding: 24px 16px 56px;
+  }
+  .pagina-login__formulario {
+    padding: 40px 16px;
+  }
+
+  /* Navbar: logo y botones más compactos */
+  .navbar__logo {
+    font-size: 22px;
+  }
+  .navbar__acciones {
+    gap: 8px;
+  }
+  .navbar__acciones .btn {
+    padding: 8px 12px;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Pestañas del panel: si no caben, se deslizan en horizontal en vez de empujar la página */
+  .dashboard__tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .dashboard__tabs button {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Filtros de reservas: uno debajo del otro, a todo el ancho */
+  .dashboard__filtros {
+    flex-direction: column;
+    width: 100%;
+  }
+  .dashboard__filtros select {
+    width: 100%;
+  }
+
+  /* Reputación del hotel: el nombre de cada criterio va arriba y la barra con su % debajo */
+  .reputacion {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .reputacion__barra {
+    grid-template-columns: minmax(0, 1fr) 36px;
+    row-gap: 6px;
+  }
+  .reputacion__barra > span:first-child {
+    grid-column: 1 / -1;
+  }
+
+  /* Resultados: el selector "Ordenar por" baja debajo del título y usa todo el ancho */
+  .resultados__encabezado {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .resultados__orden select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Objetivos táctiles de al menos 44 px */
+  .tabla__accion,
+  .tabla__boton {
+    min-height: 44px;
+  }
+  .filtros__opciones label {
+    min-height: 40px;
+  }
+
+  /* Mis reservas: la tarjeta se apila */
+  .pagina-mis-reservas {
+    padding: 24px 16px 56px;
+  }
+  .tarjeta-reserva {
+    grid-template-columns: 1fr;
+  }
+  .tarjeta-reserva img {
+    width: 100%;
+    height: 160px;
+  }
+  .tarjeta-reserva__acciones {
+    align-items: stretch;
+    text-align: left;
+  }
+
+  /* Newsletter: el botón baja a otra línea si no cabe junto al campo */
+  .footer__newsletter-form .btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* Texto corto del botón "Iniciar sesión": solo visible en celulares pequeños */
+.navbar__texto-corto {
+  display: none;
+}
+
+/* Celulares pequeños (iPhone SE y similares) */
+@media (max-width: 400px) {
+  .navbar__logo {
+    font-size: 20px;
+  }
+  .navbar__logo-sub {
+    display: none;
+  }
+  .navbar__texto-largo {
+    display: none;
+  }
+  .navbar__texto-corto {
+    display: inline;
+  }
+  /* Fechas de llegada y salida una debajo de la otra */
+  .panel-reserva__fechas {
+    grid-template-columns: 1fr;
   }
 }

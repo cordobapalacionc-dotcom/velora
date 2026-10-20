@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react'
+import { iniciarSesionApi } from '../services/api.js'
 
 const AuthContext = createContext(null)
 
@@ -50,6 +51,20 @@ function leerSesion() {
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(leerSesion)
 
+  // Pide en segundo plano un token al backend y lo agrega a la sesión. Hoy solo lo necesita
+  // la subida de imágenes; si el backend está apagado, el login local sigue funcionando igual.
+  function conectarConApi(correo, contrasena) {
+    iniciarSesionApi(correo, contrasena)
+      .then((token) => {
+        const actual = leerSesion()
+        if (actual?.correo !== correo) return // el usuario cerró sesión o cambió de cuenta mientras tanto
+        const sesion = { ...actual, token }
+        localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion))
+        setUsuario(sesion)
+      })
+      .catch(() => {})
+  }
+
   function iniciarSesion(correo, contrasena) {
     const usuarios = leerUsuarios()
     const encontrado = usuarios.find((u) => u.correo === correo.trim().toLowerCase())
@@ -59,6 +74,7 @@ export function AuthProvider({ children }) {
     const sesion = { nombre: encontrado.nombre, correo: encontrado.correo, rol: encontrado.rol }
     localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion))
     setUsuario(sesion)
+    conectarConApi(sesion.correo, contrasena)
     return sesion
   }
 

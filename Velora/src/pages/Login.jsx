@@ -8,6 +8,7 @@ export default function Login({ modoInicial = 'iniciar' }) {
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [error, setError] = useState('')
+  const [mostrarAyuda, setMostrarAyuda] = useState(false)
   const { iniciarSesion, registrarse } = useAuth()
   const navegar = useNavigate()
   const ubicacion = useLocation()
@@ -64,7 +65,7 @@ export default function Login({ modoInicial = 'iniciar' }) {
           </button>
         </div>
 
-        <h1>{modo === 'iniciar' ? 'Bienvenido de nuevo' : 'Crea tu cuenta Velora'}</h1>
+        <h1>{modo === 'iniciar' ? 'Hola de nuevo' : 'Crea tu cuenta Velora'}</h1>
         <p className="pagina-login__subtitulo">
           {modo === 'iniciar'
             ? 'Ingresa a tu cuenta para gestionar tus reservas.'
@@ -113,7 +114,24 @@ export default function Login({ modoInicial = 'iniciar' }) {
           </button>
         </form>
 
-        {modo === 'iniciar' && <a className="pagina-login__olvido" href="#!">¿Olvidaste tu contraseña?</a>}
+        {modo === 'iniciar' && (
+          <>
+            <button
+              type="button"
+              className="pagina-login__olvido enlace-boton"
+              aria-expanded={mostrarAyuda}
+              onClick={() => setMostrarAyuda((v) => !v)}
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+            {mostrarAyuda && (
+              <p className="pagina-login__ayuda" role="status">
+                Por seguridad, el restablecimiento se hace con recepción: comunícate con el hotel y te
+                ayudarán a recuperar el acceso a tu cuenta.
+              </p>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

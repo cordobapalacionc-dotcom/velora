@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { agregarHabitacion, actualizarHabitacion, eliminarHabitacion } from '../../services/hotelesStore.js'
 import { formatCOP } from '../../utils/currency.js'
+import SubirImagen from '../../components/SubirImagen.jsx'
 
 const HABITACION_VACIA = { nombre: '', detalle: '', precio: '', capacidad: 2, imagen: '', destacado: false }
 
@@ -120,15 +121,11 @@ export default function AdminHabitaciones({ hotel, onCambio }) {
                 placeholder="Ej: 30 m² · Cama Queen"
               />
             </label>
-            <label className="form-hotel__ancho-completo">
-              URL de imagen
-              <input
-                type="url"
-                value={formulario.imagen}
-                onChange={(e) => actualizarCampo('imagen', e.target.value)}
-                placeholder="https://..."
-              />
-            </label>
+            <SubirImagen
+              etiqueta="Imagen de la habitación"
+              valor={formulario.imagen}
+              onCambio={(url) => actualizarCampo('imagen', url)}
+            />
           </div>
 
           {error && <p className="pagina-login__error">{error}</p>}

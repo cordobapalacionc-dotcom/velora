@@ -1,22 +1,28 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { Award, BadgePercent, CalendarCheck, ConciergeBell } from 'lucide-react'
 import SearchBar from '../components/SearchBar.jsx'
 import { destinos, colecciones, heroImagen } from './data/hotels.js'
 import { obtenerHoteles } from '../services/hotelesStore.js'
 
 const servicios = [
   {
+    icono: BadgePercent,
     titulo: 'Garantía del mejor precio',
     descripcion: 'Si encuentras una mejor tarifa para la misma estadía, igualamos el precio.',
   },
   {
+    icono: ConciergeBell,
     titulo: 'Conserjería 24/7',
     descripcion: 'Un equipo disponible a cualquier hora para resolver lo que necesites.',
   },
   {
+    icono: CalendarCheck,
     titulo: 'Cancelación flexible',
     descripcion: 'Cambia de planes sin complicaciones en la mayoría de nuestras propiedades.',
   },
   {
+    icono: Award,
     titulo: 'Recompensas por nivel de fidelidad',
     descripcion: 'Entre más viajas con nosotros, más beneficios exclusivos desbloqueas.',
   },
@@ -24,6 +30,12 @@ const servicios = [
 
 export default function Home() {
   const testimonio = obtenerHoteles().find((h) => h.testimonio)?.testimonio
+  const { hash } = useLocation()
+
+  // El enlace "Colecciones" del menú lleva a /#colecciones: se desplaza hasta esa sección.
+  useEffect(() => {
+    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' })
+  }, [hash])
 
   return (
     <>
@@ -66,7 +78,7 @@ export default function Home() {
           {servicios.map((s) => (
             <div key={s.titulo} className="tarjeta-servicio">
               <span className="tarjeta-servicio__icono" aria-hidden="true">
-                ✦
+                <s.icono size={22} strokeWidth={1.5} />
               </span>
               <h3>{s.titulo}</h3>
               <p>{s.descripcion}</p>
@@ -75,14 +87,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="seccion">
+      <section className="seccion" id="colecciones">
         <p className="seccion__etiqueta">Colecciones</p>
         <h2 className="seccion__titulo-centrado">Colecciones creadas para cada estado de ánimo</h2>
         <div className="grid-colecciones">
           {colecciones.map((c) => (
             <Link
               key={c.id}
-              to={`/buscar?coleccion=${encodeURIComponent(c.nombre)}`}
+              to={`/buscar?coleccion=${c.id}`}
               className="tarjeta-coleccion"
             >
               <img src={c.imagen} alt={c.nombre} width={500} height={400} loading="lazy" />

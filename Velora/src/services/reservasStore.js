@@ -21,6 +21,13 @@ export function obtenerReservas() {
   return leerReservas()
 }
 
+/** Reservas de un huésped, de la más reciente a la más antigua. */
+export function obtenerReservasDeHuesped(correo) {
+  return leerReservas()
+    .filter((r) => r.huespedCorreo === correo)
+    .sort((a, b) => b.fechaCreacion.localeCompare(a.fechaCreacion))
+}
+
 export function obtenerReservasPorHotel(hotelId) {
   return leerReservas().filter((r) => r.hotelId === hotelId)
 }

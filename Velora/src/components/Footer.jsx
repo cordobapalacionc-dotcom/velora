@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom'
+import { colecciones, destinos } from '../pages/data/hotels.js'
+
 export default function Footer() {
   return (
     <footer className="footer">
@@ -10,20 +13,22 @@ export default function Footer() {
         <div className="footer__columna">
           <h4>Destinos</h4>
           <ul>
-            <li>Costa Amalfitana</li>
-            <li>Santorini</li>
-            <li>Kioto</li>
-            <li>Cartagena de Indias</li>
+            {destinos.map((d) => (
+              <li key={d.id}>
+                <Link to={`/buscar?destino=${encodeURIComponent(d.nombre)}`}>{d.nombre}</Link>
+              </li>
+            ))}
           </ul>
         </div>
 
         <div className="footer__columna">
           <h4>Colección</h4>
           <ul>
-            <li>Villas junto al mar</li>
-            <li>Retiros boutique</li>
-            <li>Skylines metropolitanos</li>
-            <li>Eje Cafetero</li>
+            {colecciones.map((c) => (
+              <li key={c.id}>
+                <Link to={`/buscar?coleccion=${c.id}`}>{c.nombre}</Link>
+              </li>
+            ))}
           </ul>
         </div>
 

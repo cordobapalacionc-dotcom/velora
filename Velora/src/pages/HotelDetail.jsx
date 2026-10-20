@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Check, MapPin, Users } from 'lucide-react'
 import Stars from '../components/Stars.jsx'
 import HotelCard from '../components/HotelCard.jsx'
 import { obtenerHotelPorId, hotelesSimilares, IMAGEN_RESPALDO } from '../services/hotelesStore.js'
@@ -9,6 +10,17 @@ import { useAuth } from '../context/AuthContext.jsx'
 
 const TARIFA_LIMPIEZA = 180000
 const IMPUESTOS_PORCENTAJE = 0.19
+
+function hoyISO() {
+  const ahora = new Date()
+  return new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
+}
+
+function diaSiguiente(fecha) {
+  const d = new Date(`${fecha}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + 1)
+  return d.toISOString().slice(0, 10)
+}
 
 function calcularNoches(entrada, salida) {
   if (!entrada || !salida) return 1
@@ -40,8 +52,11 @@ export default function HotelDetail() {
   const habitacion = hotel?.habitaciones.find((h) => h.id === habitacionSeleccionada)
   const noches = calcularNoches(entrada, salida)
 
+  // Solo se muestra un total cuando hay un rango de fechas válido: sin fechas no hay precio real.
+  const fechasValidas = Boolean(entrada && salida && salida > entrada)
+
   let resumen = null
-  if (habitacion) {
+  if (habitacion && fechasValidas) {
     const subtotal = habitacion.precio * noches
     const impuestos = Math.round(subtotal * IMPUESTOS_PORCENTAJE)
     const total = subtotal + impuestos + TARIFA_LIMPIEZA
@@ -103,7 +118,7 @@ export default function HotelDetail() {
   return (
     <div className="pagina-hotel">
       <nav className="migas">
-        <Link to="/">Inicio</Link> / <Link to="/buscar">Destinos</Link> / {hotel.nombre}
+        <Link to="/">Inicio</Link> / <Link to="/buscar">Hoteles</Link> / {hotel.nombre}
       </nav>
 
       <header className="pagina-hotel__encabezado">
@@ -112,14 +127,17 @@ export default function HotelDetail() {
           <span className="pagina-hotel__resenas"> {hotel.calificacion} · {hotel.numResenas} reseñas</span>
         </div>
         <h1>{hotel.nombre}</h1>
-        <p className="pagina-hotel__ubicacion">📍 {hotel.ubicacion}</p>
+        <p className="pagina-hotel__ubicacion icono-en-linea">
+          <MapPin size={16} aria-hidden="true" />
+          {hotel.ubicacion}
+        </p>
       </header>
 
       <div className="galeria">
         <img
           className="galeria__principal"
           src={hotel.imagenes[0] || IMAGEN_RESPALDO}
-          alt={hotel.nombre}
+          alt={`${hotel.nombre}, ${hotel.ubicacion}`}
           width={1200}
           height={800}
           fetchPriority="high"
@@ -129,7 +147,7 @@ export default function HotelDetail() {
             <img
               key={i}
               src={src || IMAGEN_RESPALDO}
-              alt={`${hotel.nombre} vista ${i + 2}`}
+              alt={`Foto ${i + 2} de ${hotel.imagenes.length} de ${hotel.nombre}`}
               width={600}
               height={450}
               loading="lazy"
@@ -141,7 +159,7 @@ export default function HotelDetail() {
       <div className="pagina-hotel__cuerpo">
         <main className="pagina-hotel__principal">
           <section className="tarjeta-seccion">
-            <h2>El arte de la calma suspendida</h2>
+            <h2>Sobre el hotel</h2>
             <p>{hotel.descripcion}</p>
           </section>
 
@@ -168,15 +186,20 @@ export default function HotelDetail() {
                         {h.nombre} {h.destacado && <span className="etiqueta-destacado">Más reservada</span>}
                       </h3>
                       <p>{h.detalle}</p>
-                      <span className="opcion-habitacion__capacidad">👥 Hasta {capacidad} huéspedes</span>
+                      <span className="opcion-habitacion__capacidad icono-en-linea">
+                        <Users size={14} aria-hidden="true" />
+                        Hasta {capacidad} huéspedes
+                      </span>
                       <span className="opcion-habitacion__precio">{formatCOP(h.precio)} / noche</span>
                     </div>
                     {alcanza ? (
                       <button
                         type="button"
-                        className={habitacionSeleccionada === h.id ? 'btn btn--dorado' : 'btn btn--oscuro'}
+                        className={habitacionSeleccionada === h.id ? 'btn btn--seleccionada' : 'btn btn--fantasma'}
+                        aria-pressed={habitacionSeleccionada === h.id}
                         onClick={() => setHabitacionSeleccionada(h.id)}
                       >
+                        {habitacionSeleccionada === h.id && <Check size={16} aria-hidden="true" />}
                         {habitacionSeleccionada === h.id ? 'Seleccionada' : 'Seleccionar'}
                       </button>
                     ) : (
@@ -229,6 +252,7 @@ export default function HotelDetail() {
               <input
                 type="date"
                 value={entrada}
+                min={hoyISO()}
                 onChange={(e) => {
                   setEntrada(e.target.value)
                   setErrorReserva('')
@@ -240,7 +264,7 @@ export default function HotelDetail() {
               <input
                 type="date"
                 value={salida}
-                min={entrada || undefined}
+                min={entrada ? diaSiguiente(entrada) : hoyISO()}
                 onChange={(e) => {
                   setSalida(e.target.value)
                   setErrorReserva('')
@@ -267,6 +291,14 @@ export default function HotelDetail() {
               </select>
             </label>
           </div>
+
+          {!fechasValidas && (
+            <p className="panel-reserva__pista">
+              {entrada && salida
+                ? 'La fecha de salida debe ser posterior a la de llegada.'
+                : 'Elige tus fechas de llegada y salida para ver el precio total.'}
+            </p>
+          )}
 
           {habitacion && resumen && (
             <div className="panel-reserva__resumen">
@@ -299,11 +331,18 @@ export default function HotelDetail() {
             <p className="panel-reserva__confirmacion">
               ¡Reserva confirmada! Código <strong>{codigoReserva}</strong>. Preséntalo en recepción al
               llegar.
+              <br />
+              <Link to="/mis-reservas">Ver mis reservas</Link>
             </p>
           ) : (
             <>
               {errorReserva && <p className="pagina-login__error">{errorReserva}</p>}
-              <button type="button" className="btn btn--dorado panel-reserva__boton" onClick={manejarReserva}>
+              <button
+                type="button"
+                className="btn btn--dorado panel-reserva__boton"
+                onClick={manejarReserva}
+                disabled={!fechasValidas}
+              >
                 Proceder a reservar
               </button>
             </>

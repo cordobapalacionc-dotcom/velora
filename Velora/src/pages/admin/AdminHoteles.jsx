@@ -3,6 +3,7 @@ import { destinos } from '../data/hotels.js'
 import { crearHotel, eliminarHotel } from '../../services/hotelesStore.js'
 import { formatCOP } from '../../utils/currency.js'
 import AdminHabitaciones from './AdminHabitaciones.jsx'
+import SubirImagen from '../../components/SubirImagen.jsx'
 
 const HOTEL_VACIO = {
   nombre: '',
@@ -105,15 +106,11 @@ export default function AdminHoteles({ hoteles, onCambio }) {
                 required
               />
             </label>
-            <label className="form-hotel__ancho-completo">
-              URL de imagen
-              <input
-                type="url"
-                value={formulario.imagen}
-                onChange={(e) => actualizarCampo('imagen', e.target.value)}
-                placeholder="https://..."
-              />
-            </label>
+            <SubirImagen
+              etiqueta="Imagen del hotel"
+              valor={formulario.imagen}
+              onCambio={(url) => actualizarCampo('imagen', url)}
+            />
             <label className="form-hotel__ancho-completo">
               Descripción corta
               <input

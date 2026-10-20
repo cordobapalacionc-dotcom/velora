@@ -25,9 +25,9 @@ export default function Navbar() {
           <NavLink to="/" end>
             Inicio
           </NavLink>
-          <NavLink to="/buscar">Destinos</NavLink>
-          <NavLink to="/buscar?coleccion=1">Colecciones</NavLink>
-          <NavLink to="/buscar?ofertas=1">Ofertas</NavLink>
+          <NavLink to="/buscar">Hoteles</NavLink>
+          {/* Enlace normal (no NavLink): apunta a una sección del inicio y no debe marcarse activo */}
+          <Link to="/#colecciones">Colecciones</Link>
         </nav>
 
         <div className="navbar__acciones">
@@ -36,6 +36,8 @@ export default function Navbar() {
               <button
                 type="button"
                 className="navbar__usuario-boton"
+                aria-expanded={menuAbierto}
+                aria-haspopup="true"
                 onClick={() => setMenuAbierto((v) => !v)}
               >
                 Hola, {usuario.nombre.split(' ')[0]}
@@ -43,6 +45,9 @@ export default function Navbar() {
               {menuAbierto && (
                 <div className="navbar__usuario-menu">
                   <span className="navbar__usuario-correo">{usuario.correo}</span>
+                  <Link to="/mis-reservas" onClick={() => setMenuAbierto(false)}>
+                    Mis reservas
+                  </Link>
                   {usuario.rol === 'admin' && (
                     <Link to="/admin" onClick={() => setMenuAbierto(false)}>
                       Panel de administrador
@@ -62,7 +67,8 @@ export default function Navbar() {
           ) : (
             <>
               <Link to="/iniciar-sesion" className="btn btn--fantasma">
-                Iniciar sesión
+                <span className="navbar__texto-largo">Iniciar sesión</span>
+                <span className="navbar__texto-corto">Entrar</span>
               </Link>
               <Link to="/crear-cuenta" className="btn btn--dorado">
                 Regístrate

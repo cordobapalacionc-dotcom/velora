@@ -5,16 +5,18 @@ function img(id, w = 1200, h = 800) {
 export const heroImagen = img('photo-1533104816931-20fa691ff6ca', 1600, 900)
 
 export const destinos = [
-  { id: 'costa-amalfitana', nombre: 'Costa Amalfitana', pais: 'Italia', imagen: img('photo-1533104816931-20fa691ff6ca', 500, 400) },
+  { id: 'costa-amalfitana', nombre: 'Costa Amalfitana', pais: 'Italia', imagen: img('photo-1612698093158-e07ac200d44e', 500, 400) },
   { id: 'kioto', nombre: 'Kioto', pais: 'Japón', imagen: img('photo-1493976040374-85c8e12f0c0e', 500, 400) },
   { id: 'santorini', nombre: 'Santorini', pais: 'Grecia', imagen: img('photo-1570077188670-e3a8d69ac5ff', 500, 400) },
   { id: 'cartagena', nombre: 'Cartagena de Indias', pais: 'Colombia', imagen: img('photo-1583531352515-8884af319dc1', 500, 400) },
+  { id: 'st-moritz', nombre: 'St. Moritz', pais: 'Suiza', imagen: img('photo-1510798831971-661eb04b3739', 500, 400) },
+  { id: 'eje-cafetero', nombre: 'Eje Cafetero', pais: 'Colombia', imagen: img('photo-1470240731273-7821a6eeb6bd', 500, 400) },
 ]
 
 export const colecciones = [
   { id: 'villas-mar', nombre: 'Villas junto al mar', imagen: img('photo-1571896349842-33c89424de2d', 500, 400) },
-  { id: 'retiros-boutique', nombre: 'Retiros boutique íntimos', imagen: img('photo-1520250497591-112f2f40a3f4', 500, 400) },
-  { id: 'skylines', nombre: 'Skylines metropolitanos', imagen: img('photo-1518391846015-55a9cc003b25', 500, 400) },
+  { id: 'retiros-boutique', nombre: 'Retiros boutique íntimos', imagen: img('photo-1590490360182-c33d57733427', 500, 400) },
+  { id: 'montana', nombre: 'Refugios de montaña', imagen: img('photo-1418985991508-e47386d96a71', 500, 400) },
   { id: 'cafe-colombiano', nombre: 'Retiros en el Eje Cafetero', imagen: img('photo-1447933601403-0c6688de566e', 500, 400) },
 ]
 
@@ -23,6 +25,7 @@ export const hoteles = [
     id: 'saffron-cliff-palace',
     nombre: 'Palacio Saffron del Acantilado',
     destinoId: 'costa-amalfitana',
+    colecciones: ['villas-mar'],
     ubicacion: 'Costa Amalfitana, Italia',
     calificacion: 4.9,
     numResenas: 128,
@@ -31,10 +34,10 @@ export const hoteles = [
     descripcion:
       'Encaramado en los acantilados dorados de la Costa Amalfitana, el Palacio Saffron es un homenaje a la calma suspendida. Cada suite ha sido diseñada para difuminar el límite entre interior y exterior, con terrazas privadas que se asoman al Mediterráneo. El servicio es silencioso pero omnipresente: una filosofía de hospitalidad que rara vez se encuentra en la Costa Amalfitana y a la que siempre queremos volver cada verano.',
     imagenes: [
-      img('photo-1533104816931-20fa691ff6ca'),
-      img('photo-1520250497591-112f2f40a3f4', 600, 450),
-      img('photo-1571003123894-1f0594d2b5d9', 600, 450),
-      img('photo-1445019980597-93fa8acb246c', 600, 450),
+      img('photo-1612698093158-e07ac200d44e'),
+      img('photo-1533105079780-92b9be482077', 600, 450),
+      img('photo-1499678329028-101435549a4e', 600, 450),
+      img('photo-1469796466635-455ede028aca', 600, 450),
     ],
     habitaciones: [
       {
@@ -43,7 +46,7 @@ export const hoteles = [
         detalle: '35 m² · Cama King · Vista a la terraza',
         precio: 2680000,
         capacidad: 2,
-        imagen: img('photo-1566073771259-6a8506099945', 300, 220),
+        imagen: img('photo-1618773928121-c32242e63f39', 300, 220),
       },
       {
         id: 'suite-zafiro',
@@ -51,7 +54,7 @@ export const hoteles = [
         detalle: '60 m² · Suite completa · Vista panorámica al mar',
         precio: 5450000,
         capacidad: 4,
-        imagen: img('photo-1611892440504-42a792e24d32', 300, 220),
+        imagen: img('photo-1578683010236-d716f9a3f461', 300, 220),
         destacado: true,
       },
       {
@@ -60,7 +63,7 @@ export const hoteles = [
         detalle: '95 m² · 3 habitaciones · Terraza privada',
         precio: 7980000,
         capacidad: 6,
-        imagen: img('photo-1571003123894-1f0594d2b5d9', 300, 220),
+        imagen: img('photo-1545083036-b175dd155a1d', 300, 220),
       },
     ],
     reputacion: { promedio: 4.9, total: 128, limpieza: 99, ubicacion: 98, cobertura: 96, respuesta: 95 },
@@ -75,6 +78,7 @@ export const hoteles = [
     id: 'belvedere-sands',
     nombre: 'Refugio de Arenas Belvedere',
     destinoId: 'costa-amalfitana',
+    colecciones: ['villas-mar', 'retiros-boutique'],
     ubicacion: 'Costa Amalfitana, Italia',
     calificacion: 4.8,
     numResenas: 94,
@@ -83,14 +87,14 @@ export const hoteles = [
     descripcion:
       'El Refugio de Arenas Belvedere combina la sobriedad del diseño mediterráneo con vistas ininterrumpidas al mar. Un enclave pensado para quienes buscan lujo silencioso, sin ostentación.',
     imagenes: [
-      img('photo-1571896349842-33c89424de2d'),
+      img('photo-1516483638261-f4dbaf036963'),
+      img('photo-1571896349842-33c89424de2d', 600, 450),
       img('photo-1445019980597-93fa8acb246c', 600, 450),
-      img('photo-1520250497591-112f2f40a3f4', 600, 450),
     ],
     habitaciones: [
-      { id: 'vista-jardin', nombre: 'Habitación Vista Jardín', detalle: '28 m² · Cama Queen', precio: 2290000, capacidad: 2, imagen: img('photo-1566073771259-6a8506099945', 300, 220) },
-      { id: 'suite-mar', nombre: 'Suite Vista al Mar', precio: 3980000, detalle: '48 m² · Terraza privada', capacidad: 4, imagen: img('photo-1611892440504-42a792e24d32', 300, 220), destacado: true },
-      { id: 'casa-playa-belvedere', nombre: 'Casa de Playa Belvedere', detalle: '90 m² · 3 habitaciones · Acceso directo a la arena', precio: 6480000, capacidad: 6, imagen: img('photo-1571896349842-33c89424de2d', 300, 220) },
+      { id: 'vista-jardin', nombre: 'Habitación Vista Jardín', detalle: '28 m² · Cama Queen', precio: 2290000, capacidad: 2, imagen: img('photo-1505693416388-ac5ce068fe85', 300, 220) },
+      { id: 'suite-mar', nombre: 'Suite Vista al Mar', precio: 3980000, detalle: '48 m² · Terraza privada', capacidad: 4, imagen: img('photo-1582719478250-c89cae4dc85b', 300, 220), destacado: true },
+      { id: 'casa-playa-belvedere', nombre: 'Casa de Playa Belvedere', detalle: '90 m² · 3 habitaciones · Acceso directo a la arena', precio: 6480000, capacidad: 6, imagen: img('photo-1600585154340-be6161a56a0c', 300, 220) },
     ],
     reputacion: { promedio: 4.8, total: 94, limpieza: 97, ubicacion: 99, cobertura: 94, respuesta: 92 },
   },
@@ -98,6 +102,7 @@ export const hoteles = [
     id: 'azure-vault-cloister',
     nombre: 'Claustro Azur de Saffron',
     destinoId: 'santorini',
+    colecciones: ['villas-mar'],
     ubicacion: 'Santorini, Grecia',
     calificacion: 4.9,
     numResenas: 156,
@@ -107,13 +112,13 @@ export const hoteles = [
       'Tallado en la ladera de la caldera de Santorini, el Claustro Azur reinterpreta la arquitectura cicládica con un lenguaje minimalista. Cada suite tiene su propia piscina privada frente al atardecer más fotografiado del Egeo.',
     imagenes: [
       img('photo-1570077188670-e3a8d69ac5ff'),
+      img('photo-1613395877344-13d4a8e0d49e', 600, 450),
       img('photo-1613490493576-7fde63acd811', 600, 450),
-      img('photo-1526481280693-3bfa7568e0f3', 600, 450),
     ],
     habitaciones: [
-      { id: 'suite-caldera', nombre: 'Suite Caldera', detalle: '32 m² · Piscina privada', precio: 3690000, capacidad: 2, imagen: img('photo-1566073771259-6a8506099945', 300, 220) },
-      { id: 'villa-egeo', nombre: 'Villa del Egeo', detalle: '75 m² · 2 habitaciones', precio: 6980000, capacidad: 4, imagen: img('photo-1611892440504-42a792e24d32', 300, 220), destacado: true },
-      { id: 'mansion-caldera', nombre: 'Mansión de la Caldera', detalle: '110 m² · 3 habitaciones · Piscina infinita privada', precio: 9800000, capacidad: 6, imagen: img('photo-1570077188670-e3a8d69ac5ff', 300, 220) },
+      { id: 'suite-caldera', nombre: 'Suite Caldera', detalle: '32 m² · Piscina privada', precio: 3690000, capacidad: 2, imagen: img('photo-1631049307264-da0ec9d70304', 300, 220) },
+      { id: 'villa-egeo', nombre: 'Villa del Egeo', detalle: '75 m² · 2 habitaciones', precio: 6980000, capacidad: 4, imagen: img('photo-1613490493576-7fde63acd811', 300, 220), destacado: true },
+      { id: 'mansion-caldera', nombre: 'Mansión de la Caldera', detalle: '110 m² · 3 habitaciones · Piscina infinita privada', precio: 9800000, capacidad: 6, imagen: img('photo-1530841377377-3ff06c0ca713', 300, 220) },
     ],
     reputacion: { promedio: 4.9, total: 156, limpieza: 98, ubicacion: 100, cobertura: 95, respuesta: 96 },
   },
@@ -121,6 +126,7 @@ export const hoteles = [
     id: 'saffron-tea-garden',
     nombre: 'Jardín de Té de Saffron',
     destinoId: 'kioto',
+    colecciones: ['retiros-boutique'],
     ubicacion: 'Kioto, Japón',
     calificacion: 4.7,
     numResenas: 76,
@@ -130,13 +136,13 @@ export const hoteles = [
       'A pasos de los templos históricos de Kioto, este ryokan reinterpretado combina la ceremonia del té, los onsen privados y una arquitectura de madera de ciprés que envejece con dignidad.',
     imagenes: [
       img('photo-1493976040374-85c8e12f0c0e'),
-      img('photo-1590490360182-c33d57733427', 600, 450),
-      img('photo-1503899036084-c55cdd92da26', 600, 450),
+      img('photo-1478436127897-769e1b3f0f36', 600, 450),
+      img('photo-1545569341-9eb8b30979d9', 600, 450),
     ],
     habitaciones: [
-      { id: 'tatami-clasica', nombre: 'Habitación Tatami Clásica', detalle: '24 m² · Futón tradicional', precio: 1450000, capacidad: 2, imagen: img('photo-1566073771259-6a8506099945', 300, 220) },
-      { id: 'suite-onsen', nombre: 'Suite con Onsen Privado', detalle: '40 m² · Baño termal propio', precio: 2680000, capacidad: 4, imagen: img('photo-1611892440504-42a792e24d32', 300, 220), destacado: true },
-      { id: 'pabellon-familiar', nombre: 'Pabellón Familiar de Té', detalle: '70 m² · 2 habitaciones tatami · Jardín privado', precio: 4350000, capacidad: 6, imagen: img('photo-1493976040374-85c8e12f0c0e', 300, 220) },
+      { id: 'tatami-clasica', nombre: 'Habitación Tatami Clásica', detalle: '24 m² · Futón tradicional', precio: 1450000, capacidad: 2, imagen: img('photo-1540518614846-7eded433c457', 300, 220) },
+      { id: 'suite-onsen', nombre: 'Suite con Onsen Privado', detalle: '40 m² · Baño termal propio', precio: 2680000, capacidad: 4, imagen: img('photo-1590490360182-c33d57733427', 300, 220), destacado: true },
+      { id: 'pabellon-familiar', nombre: 'Pabellón Familiar de Té', detalle: '70 m² · 2 habitaciones tatami · Jardín privado', precio: 4350000, capacidad: 6, imagen: img('photo-1522771739844-6a9f6d5f14af', 300, 220) },
     ],
     reputacion: { promedio: 4.7, total: 76, limpieza: 99, ubicacion: 93, cobertura: 90, respuesta: 94 },
   },
@@ -144,6 +150,7 @@ export const hoteles = [
     id: 'st-moritz-crystal',
     nombre: 'Chalet de Cristal St. Moritz',
     destinoId: 'st-moritz',
+    colecciones: ['montana'],
     ubicacion: 'St. Moritz, Suiza',
     calificacion: 4.9,
     numResenas: 112,
@@ -152,14 +159,14 @@ export const hoteles = [
     descripcion:
       'Entre picos nevados y el lago helado de St. Moritz, este chalet combina la calidez de la madera antigua con un spa de última generación. Ideal para quienes buscan silencio absoluto en altura.',
     imagenes: [
-      img('photo-1476514525535-07fb3b4ae5f1'),
-      img('photo-1520250497591-112f2f40a3f4', 600, 450),
-      img('photo-1445019980597-93fa8acb246c', 600, 450),
+      img('photo-1510798831971-661eb04b3739'),
+      img('photo-1476514525535-07fb3b4ae5f1', 600, 450),
+      img('photo-1520984032042-162d526883e0', 600, 450),
     ],
     habitaciones: [
-      { id: 'habitacion-alpina', nombre: 'Habitación Alpina', detalle: '30 m² · Vista al lago', precio: 4150000, capacidad: 2, imagen: img('photo-1566073771259-6a8506099945', 300, 220) },
-      { id: 'suite-chimenea', nombre: 'Suite con Chimenea', detalle: '55 m² · Balcón y jacuzzi', precio: 7290000, capacidad: 4, imagen: img('photo-1611892440504-42a792e24d32', 300, 220), destacado: true },
-      { id: 'chalet-familiar-moritz', nombre: 'Chalet Familiar de Altura', detalle: '120 m² · 3 habitaciones · Sala con chimenea', precio: 11800000, capacidad: 6, imagen: img('photo-1476514525535-07fb3b4ae5f1', 300, 220) },
+      { id: 'habitacion-alpina', nombre: 'Habitación Alpina', detalle: '30 m² · Vista al lago', precio: 4150000, capacidad: 2, imagen: img('photo-1631049307264-da0ec9d70304', 300, 220) },
+      { id: 'suite-chimenea', nombre: 'Suite con Chimenea', detalle: '55 m² · Balcón y jacuzzi', precio: 7290000, capacidad: 4, imagen: img('photo-1618773928121-c32242e63f39', 300, 220), destacado: true },
+      { id: 'chalet-familiar-moritz', nombre: 'Chalet Familiar de Altura', detalle: '120 m² · 3 habitaciones · Sala con chimenea', precio: 11800000, capacidad: 6, imagen: img('photo-1545083036-b175dd155a1d', 300, 220) },
     ],
     reputacion: { promedio: 4.9, total: 112, limpieza: 98, ubicacion: 97, cobertura: 96, respuesta: 97 },
   },
@@ -167,6 +174,7 @@ export const hoteles = [
     id: 'refugio-colonial-cartagena',
     nombre: 'Refugio Colonial de Cartagena',
     destinoId: 'cartagena',
+    colecciones: ['retiros-boutique'],
     ubicacion: 'Ciudad Amurallada, Cartagena, Colombia',
     calificacion: 4.6,
     numResenas: 203,
@@ -180,8 +188,8 @@ export const hoteles = [
       img('photo-1571896349842-33c89424de2d', 600, 450),
     ],
     habitaciones: [
-      { id: 'habitacion-colonial', nombre: 'Habitación Colonial', detalle: '26 m² · Balcón interior', precio: 1190000, capacidad: 2, imagen: img('photo-1566073771259-6a8506099945', 300, 220) },
-      { id: 'suite-azotea', nombre: 'Suite de la Azotea', detalle: '42 m² · Acceso directo a la piscina', precio: 2050000, capacidad: 4, imagen: img('photo-1611892440504-42a792e24d32', 300, 220), destacado: true },
+      { id: 'habitacion-colonial', nombre: 'Habitación Colonial', detalle: '26 m² · Balcón interior', precio: 1190000, capacidad: 2, imagen: img('photo-1505693416388-ac5ce068fe85', 300, 220) },
+      { id: 'suite-azotea', nombre: 'Suite de la Azotea', detalle: '42 m² · Acceso directo a la piscina', precio: 2050000, capacidad: 4, imagen: img('photo-1544984243-ec57ea16fe25', 300, 220), destacado: true },
       { id: 'casa-colonial-completa', nombre: 'Casa Colonial Completa', detalle: '80 m² · 3 habitaciones · Patio y piscina privados', precio: 3680000, capacidad: 6, imagen: img('photo-1583531352515-8884af319dc1', 300, 220) },
     ],
     reputacion: { promedio: 4.6, total: 203, limpieza: 95, ubicacion: 99, cobertura: 91, respuesta: 93 },
@@ -190,6 +198,7 @@ export const hoteles = [
     id: 'mirador-del-cafe',
     nombre: 'Mirador del Café',
     destinoId: 'eje-cafetero',
+    colecciones: ['cafe-colombiano', 'montana'],
     ubicacion: 'Salento, Eje Cafetero, Colombia',
     calificacion: 4.8,
     numResenas: 141,
@@ -198,14 +207,14 @@ export const hoteles = [
     descripcion:
       'Rodeado de cafetales y palmas de cera del Valle de Cocora, el Mirador del Café ofrece cabañas privadas con hidromasaje exterior, catas de café de origen y senderos guiados por la finca.',
     imagenes: [
-      img('photo-1447933601403-0c6688de566e'),
-      img('photo-1470240731273-7821a6eeb6bd', 600, 450),
-      img('photo-1445019980597-93fa8acb246c', 600, 450),
+      img('photo-1470240731273-7821a6eeb6bd'),
+      img('photo-1542718610-a1d656d1884c', 600, 450),
+      img('photo-1449158743715-0a90ebb6d2d8', 600, 450),
     ],
     habitaciones: [
-      { id: 'cabana-finca', nombre: 'Cabaña de Finca', detalle: '30 m² · Terraza con hidromasaje', precio: 890000, capacidad: 2, imagen: img('photo-1566073771259-6a8506099945', 300, 220) },
-      { id: 'suite-valle', nombre: 'Suite Valle de Cocora', detalle: '45 m² · Vista panorámica', precio: 1450000, capacidad: 4, imagen: img('photo-1611892440504-42a792e24d32', 300, 220), destacado: true },
-      { id: 'cabana-familiar-cafe', nombre: 'Cabaña Familiar del Valle', detalle: '65 m² · 3 habitaciones · Terraza panorámica', precio: 2450000, capacidad: 6, imagen: img('photo-1447933601403-0c6688de566e', 300, 220) },
+      { id: 'cabana-finca', nombre: 'Cabaña de Finca', detalle: '30 m² · Terraza con hidromasaje', precio: 890000, capacidad: 2, imagen: img('photo-1449158743715-0a90ebb6d2d8', 300, 220) },
+      { id: 'suite-valle', nombre: 'Suite Valle de Cocora', detalle: '45 m² · Vista panorámica', precio: 1450000, capacidad: 4, imagen: img('photo-1582719478250-c89cae4dc85b', 300, 220), destacado: true },
+      { id: 'cabana-familiar-cafe', nombre: 'Cabaña Familiar del Valle', detalle: '65 m² · 3 habitaciones · Terraza panorámica', precio: 2450000, capacidad: 6, imagen: img('photo-1542718610-a1d656d1884c', 300, 220) },
     ],
     reputacion: { promedio: 4.8, total: 141, limpieza: 97, ubicacion: 96, cobertura: 90, respuesta: 92 },
   },

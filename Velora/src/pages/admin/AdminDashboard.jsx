@@ -4,6 +4,7 @@ import { obtenerReservas } from '../../services/reservasStore.js'
 import { formatCOP } from '../../utils/currency.js'
 import AdminHoteles from './AdminHoteles.jsx'
 import AdminReservas from './AdminReservas.jsx'
+import { ChartColumn } from 'lucide-react'
 
 const TABS = [
   { id: 'resumen', etiqueta: 'Resumen' },
@@ -77,8 +78,14 @@ export default function AdminDashboard() {
 
           <div className="tarjeta-seccion">
             <h2>Ingresos por hotel</h2>
-            {ingresosPorHotel.length === 0 ? (
-              <p>Aún no hay reservas registradas.</p>
+            {ingresosTotales === 0 ? (
+              <div className="estado-vacio">
+                <span className="estado-vacio__icono" aria-hidden="true">
+                  <ChartColumn size={26} strokeWidth={1.5} />
+                </span>
+                <h2>Todavía no hay ingresos</h2>
+                <p>Cuando los huéspedes reserven, aquí verás cuánto ha generado cada hotel.</p>
+              </div>
             ) : (
               <div className="dashboard__barras">
                 {ingresosPorHotel.map((h) => (
