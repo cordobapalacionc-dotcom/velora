@@ -4,11 +4,14 @@ import express from 'express'
 import helmet from 'helmet'
 import { config } from './config/env.js'
 import { manejadorErrores, rutaNoEncontrada } from './middlewares/errores.js'
+import { adminRutas } from './modules/admin/admin.rutas.js'
 import { authRutas } from './modules/auth/auth.rutas.js'
 import { catalogoRutas } from './modules/catalogo/catalogo.rutas.js'
 import { hotelesRutas } from './modules/hoteles/hoteles.rutas.js'
 import { imagenesRutas } from './modules/imagenes/imagenes.rutas.js'
+import { resenasRutas } from './modules/resenas/resenas.rutas.js'
 import { reservasRutas } from './modules/reservas/reservas.rutas.js'
+import { temporadasRutas } from './modules/tarifas/temporadas.rutas.js'
 
 // Si agregas una ruta nueva, agrégala también aquí y en backend/README.md.
 const INDICE_API = Object.freeze({
@@ -17,13 +20,22 @@ const INDICE_API = Object.freeze({
   documentacion: 'backend/README.md',
   rutas: {
     sistema: ['GET /api', 'GET /api/salud'],
-    autenticacion: ['POST /api/auth/registro', 'POST /api/auth/login', 'GET /api/auth/yo (sesión)'],
-    catalogo: ['GET /api/catalogo/destinos', 'GET /api/catalogo/colecciones'],
+    autenticacion: [
+      'POST /api/auth/registro',
+      'POST /api/auth/login',
+      'POST /api/auth/recuperar',
+      'POST /api/auth/restablecer',
+      'GET /api/auth/yo (sesión)',
+    ],
+    catalogo: ['GET /api/catalogo/destinos', 'GET /api/catalogo/colecciones', 'GET /api/catalogo/configuracion'],
     hoteles: [
-      'GET /api/hoteles?destino=&huespedes=',
+      'GET /api/hoteles?destino=&huespedes=&coleccion=',
       'GET /api/hoteles/:id',
       'GET /api/hoteles/:id/similares?cantidad=',
       'GET /api/hoteles/:id/disponibilidad?entrada=&salida=&huespedes=',
+      'GET /api/hoteles/:id/calendario?desde=&hasta=',
+      'GET /api/hoteles/:id/cotizacion?habitacionId=&entrada=&salida=&huespedes=',
+      'GET /api/hoteles/:id/resenas?limite=',
       'POST /api/hoteles (admin)',
       'PATCH /api/hoteles/:id (admin)',
       'DELETE /api/hoteles/:id (admin)',
@@ -35,11 +47,16 @@ const INDICE_API = Object.freeze({
       'POST /api/reservas (sesión)',
       'GET /api/reservas/mias (sesión)',
       'GET /api/reservas?q=&estado=&hotelId= (admin, recepcionista)',
+      'GET /api/reservas/exportar?q=&estado=&hotelId= (admin, CSV para Excel)',
       'GET /api/reservas/:id (propietario o personal)',
+      'PATCH /api/reservas/:id (admin, recepcionista)',
       'POST /api/reservas/:id/check-in (admin, recepcionista)',
       'POST /api/reservas/:id/check-out (admin, recepcionista)',
-      'POST /api/reservas/:id/cancelar (propietario o personal)',
+      'POST /api/reservas/:id/cancelar (propietario o personal; el personal puede exonerar el cargo)',
     ],
+    resenas: ['POST /api/resenas (huésped con estadía terminada)', 'GET /api/resenas (admin)', 'DELETE /api/resenas/:id (admin)'],
+    temporadas: ['GET /api/temporadas (admin)', 'POST /api/temporadas (admin)', 'PATCH /api/temporadas/:id (admin)', 'DELETE /api/temporadas/:id (admin)'],
+    admin: ['GET /api/admin/accesos?dias= (admin)', 'GET /api/admin/metricas?desde=&hasta= (admin)'],
     imagenes: ['POST /api/imagenes (admin, multipart campo "imagen")', 'GET /uploads/:nombre'],
   },
 })
@@ -91,6 +108,9 @@ export function crearApp() {
   app.use('/api/hoteles', hotelesRutas)
   app.use('/api/reservas', reservasRutas)
   app.use('/api/imagenes', imagenesRutas)
+  app.use('/api/resenas', resenasRutas)
+  app.use('/api/temporadas', temporadasRutas)
+  app.use('/api/admin', adminRutas)
 
   app.use(rutaNoEncontrada)
   app.use(manejadorErrores)

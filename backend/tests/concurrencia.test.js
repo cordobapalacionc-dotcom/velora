@@ -102,10 +102,11 @@ describe('Triggers de la base de datos (última línea de defensa)', () => {
       .prepare(
         `INSERT INTO reservas (id, codigo, usuario_id, hotel_id, habitacion_id, hotel_nombre, habitacion_nombre,
                                huesped_nombre, huesped_correo, entrada, salida, huespedes, noches, precio_noche,
-                               subtotal, impuestos, tarifa_limpieza, total, estado, fecha_cancelacion)
+                               subtotal, impuestos, tarifa_limpieza, total, estado, fecha_cancelacion, cargo_cancelacion)
          SELECT :nuevoId, 'VEL-000001', usuario_id, hotel_id, habitacion_id, hotel_nombre, habitacion_nombre,
                 huesped_nombre, huesped_correo, entrada, salida, huespedes, noches, precio_noche,
-                subtotal, impuestos, tarifa_limpieza, total, :estado, :fechaCancelacion
+                subtotal, impuestos, tarifa_limpieza, total, :estado, :fechaCancelacion,
+                CASE WHEN :estado = 'cancelada' THEN 0 END
          FROM reservas WHERE id = :idOriginal`
       )
       .run({ nuevoId: crypto.randomUUID(), idOriginal, estado: 'confirmada', fechaCancelacion: null, ...cambios })
@@ -142,7 +143,7 @@ describe('Bloqueo de transacciones entre conexiones distintas', () => {
     conexionA.exec(esquema)
     conexionA.exec(`
       INSERT INTO usuarios (nombre, correo, contrasena_hash) VALUES ('Ana', 'ana@correo.com', 'x'), ('Luis', 'luis@correo.com', 'x');
-      INSERT INTO destinos VALUES ('kioto', 'Kioto', 'Japón', 'http://img');
+      INSERT INTO destinos (id, nombre, pais, imagen) VALUES ('kioto', 'Kioto', 'Japón', 'http://img');
       INSERT INTO hoteles (id, nombre, destino_id, ubicacion, precio_noche) VALUES ('hotel-a', 'Hotel A', 'kioto', 'Kioto', 100);
       INSERT INTO habitaciones (hotel_id, id, nombre, precio, capacidad, imagen) VALUES ('hotel-a', 'hab-1', 'Hab 1', 100, 2, 'http://img');
     `)
@@ -189,7 +190,7 @@ describe('Bloqueo de transacciones entre conexiones distintas', () => {
   })
 
   test('si la transacción se revierte (ROLLBACK), la habitación queda libre', () => {
-    conexionA.exec("UPDATE reservas SET estado = 'cancelada', fecha_cancelacion = '2030-01-01'")
+    conexionA.exec("UPDATE reservas SET estado = 'cancelada', fecha_cancelacion = '2030-01-01', cargo_cancelacion = 0")
     conexionA.exec('BEGIN IMMEDIATE')
     assert.equal(insertarReserva(conexionA, 1, 'VEL-333333'), 1)
     conexionA.exec('ROLLBACK')

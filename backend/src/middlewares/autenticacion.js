@@ -8,16 +8,22 @@ function extraerToken(req) {
   return tipo === 'Bearer' && token ? token : null
 }
 
-/** Exige un JWT válido. El usuario se recarga desde la BD para reflejar cambios de rol o bajas. */
+/**
+ * Exige un JWT válido. El usuario se recarga desde la BD para reflejar cambios de rol o bajas,
+ * y el token debe ser de la versión de sesión actual (cambiar la contraseña invalida los anteriores).
+ */
 export function autenticar(req, _res, next) {
   const token = extraerToken(req)
   if (!token) return next(errores.noAutenticado())
 
   const payload = verificarToken(token)
-  const usuario = payload && usuariosRepositorio.buscarPorId(Number(payload.sub))
-  if (!usuario) return next(errores.noAutenticado('La sesión no es válida o expiró. Inicia sesión de nuevo.'))
+  const usuario = payload && usuariosRepositorio.buscarParaSesion(Number(payload.sub))
+  if (!usuario || payload.sv !== usuario.sesionVersion) {
+    return next(errores.noAutenticado('La sesión no es válida o expiró. Inicia sesión de nuevo.'))
+  }
 
-  req.usuario = usuario
+  const { sesionVersion: _version, ...publico } = usuario
+  req.usuario = publico
   next()
 }
 

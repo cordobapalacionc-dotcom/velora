@@ -40,8 +40,23 @@ export const esquemaCrearReserva = z
 
 export const esquemaParamsReserva = z.strictObject({ id: z.uuid('Id de reserva inválido.') })
 
+// Las reglas de fechas dependen del estado de la reserva, así que se validan en el servicio.
+export const esquemaModificarReserva = z
+  .strictObject({
+    habitacionId: slug,
+    ...camposRangoFechas,
+    huespedes: z.number({ error: 'La cantidad de huéspedes debe ser un número.' }).int().min(1).max(20),
+  })
+  .partial()
+  .refine((d) => Object.keys(d).length > 0, 'Envía al menos un campo para modificar.')
+
 export const esquemaListarReservas = z.object({
   q: z.string().trim().max(100).optional(),
   estado: z.enum(ESTADOS_RESERVA).optional(),
   hotelId: slug.optional(),
+})
+
+// Solo el personal puede exonerar el cargo por cancelación tardía (el servicio lo comprueba).
+export const esquemaCancelarReserva = z.strictObject({
+  exonerarCargo: z.boolean().default(false),
 })

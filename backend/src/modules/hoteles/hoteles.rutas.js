@@ -4,6 +4,8 @@ import { validar } from '../../middlewares/validar.js'
 import {
   esquemaActualizarHabitacion,
   esquemaActualizarHotel,
+  esquemaCalendario,
+  esquemaCotizacion,
   esquemaCrearHabitacion,
   esquemaCrearHotel,
   esquemaDisponibilidad,
@@ -12,6 +14,8 @@ import {
   esquemaParamsHotel,
   esquemaSimilares,
 } from './hoteles.esquemas.js'
+import { esquemaListarResenas } from '../resenas/resenas.esquemas.js'
+import { resenasServicio } from '../resenas/resenas.servicio.js'
 import { hotelesServicio } from './hoteles.servicio.js'
 
 export const hotelesRutas = Router()
@@ -38,6 +42,18 @@ hotelesRutas.get(
     res.json({ datos: hotelesServicio.disponibilidad(req.validado.params.id, req.validado.query) })
   }
 )
+
+hotelesRutas.get('/:id/calendario', validar({ params: esquemaParamsHotel, query: esquemaCalendario }), (req, res) => {
+  res.json({ datos: hotelesServicio.calendario(req.validado.params.id, req.validado.query) })
+})
+
+hotelesRutas.get('/:id/cotizacion', validar({ params: esquemaParamsHotel, query: esquemaCotizacion }), (req, res) => {
+  res.json({ datos: hotelesServicio.cotizacion(req.validado.params.id, req.validado.query) })
+})
+
+hotelesRutas.get('/:id/resenas', validar({ params: esquemaParamsHotel, query: esquemaListarResenas }), (req, res) => {
+  res.json({ datos: resenasServicio.listarDeHotel(req.validado.params.id, req.validado.query) })
+})
 
 // ---- Administración de hoteles ----
 

@@ -12,11 +12,14 @@ process.env.IMAGEN_MAX_MB = '1'
 
 const { crearApp } = await import('../src/app.js')
 const { iniciarDb, cerrarDb } = await import('../src/db/conexion.js')
+const { default: sharp } = await import('sharp')
 
-// Imágenes mínimas válidas: solo importan los primeros bytes (la firma del formato).
-const PNG = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(32)])
-const JPG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(32)])
-const WEBP = Buffer.concat([Buffer.from('RIFF'), Buffer.alloc(4), Buffer.from('WEBP'), Buffer.alloc(32)])
+// Imágenes reales de 2000×1000 px (más anchas que el máximo de 1600, para comprobar que se reducen).
+const lienzo = () => sharp({ create: { width: 2000, height: 1000, channels: 3, background: { r: 169, g: 119, b: 42 } } })
+const PNG = await lienzo().png().toBuffer()
+// JPG con metadatos EXIF, como una foto de celular: no deben llegar a la imagen publicada.
+const JPG = await lienzo().jpeg().withExif({ IFD0: { Copyright: 'Foto de prueba', Make: 'Celular' } }).toBuffer()
+const WEBP = await lienzo().webp().toBuffer()
 
 let servidor, base, tokenAdmin, tokenCliente
 
@@ -61,17 +64,27 @@ after(() => {
 })
 
 describe('Subida de imágenes', () => {
-  test('el admin sube PNG, JPG y WebP y recibe una URL que se puede ver', async () => {
+  test('el admin sube PNG, JPG y WebP: se guardan como WebP reducido, en tres tamaños y sin metadatos', async () => {
     for (const [contenido, extension, tipo] of [[PNG, 'png', 'image/png'], [JPG, 'jpg', 'image/jpeg'], [WEBP, 'webp', 'image/webp']]) {
       const { estado, json } = await subir(tokenAdmin, contenido, `foto.${extension}`, tipo)
       assert.equal(estado, 201)
-      assert.match(json.datos.url, new RegExp(`^http://127\\.0\\.0\\.1:\\d+/uploads/[0-9a-f-]{36}\\.${extension}$`))
+      assert.match(json.datos.url, /^http:\/\/127\.0\.0\.1:\d+\/uploads\/[0-9a-f-]{36}\.webp$/)
+      assert.equal(json.datos.tipo, 'image/webp')
+      assert.deepEqual([json.datos.ancho, json.datos.alto], [1600, 800])
 
       const imagen = await fetch(json.datos.url)
       assert.equal(imagen.status, 200)
-      assert.equal(imagen.headers.get('content-type'), tipo)
+      assert.equal(imagen.headers.get('content-type'), 'image/webp')
       assert.equal(imagen.headers.get('cross-origin-resource-policy'), 'cross-origin')
-      assert.deepEqual(Buffer.from(await imagen.arrayBuffer()), contenido)
+      const metadatos = await sharp(Buffer.from(await imagen.arrayBuffer())).metadata()
+      assert.equal(metadatos.format, 'webp')
+      assert.equal(metadatos.exif, undefined, 'la imagen publicada no conserva metadatos EXIF')
+
+      for (const ancho of [400, 800]) {
+        const version = await fetch(json.datos.url.replace('.webp', `-${ancho}.webp`))
+        assert.equal(version.status, 200)
+        assert.equal((await sharp(Buffer.from(await version.arrayBuffer())).metadata()).width, ancho)
+      }
     }
   })
 
@@ -94,6 +107,8 @@ describe('Subida de imágenes', () => {
   test('rechaza archivos que no son imágenes aunque digan serlo', async () => {
     const texto = await subir(tokenAdmin, Buffer.from('esto es un texto cualquiera, no una imagen'), 'falsa.png', 'image/png')
     assert.equal(texto.estado, 400)
+    const danada = await subir(tokenAdmin, Buffer.concat([PNG.subarray(0, 40), Buffer.alloc(200)]), 'danada.png', 'image/png')
+    assert.equal(danada.estado, 400, 'firma de PNG correcta pero contenido dañado')
     const svg = await subir(tokenAdmin, Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'), 'x.svg', 'image/svg+xml')
     assert.equal(svg.estado, 400)
   })
@@ -111,7 +126,8 @@ describe('Subida de imágenes', () => {
   })
 
   test('los archivos rechazados no se guardan en disco', () => {
+    // 4 imágenes válidas × 3 tamaños cada una.
     const archivos = readdirSync(carpetaTemporal)
-    assert.equal(archivos.length, 4, `solo las 4 imágenes válidas, encontrados: ${archivos.join(', ')}`)
+    assert.equal(archivos.length, 12, `solo las imágenes válidas, encontrados: ${archivos.join(', ')}`)
   })
 })

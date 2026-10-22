@@ -40,6 +40,9 @@ function traducirError(error) {
         if (error.message.includes('RESERVA_SOLAPADA')) {
           return errores.conflicto('La habitación ya está reservada en esas fechas.')
         }
+        if (error.message.includes('RESENA_NO_VERIFICADA')) {
+          return errores.reglaNegocio('Solo se puede opinar sobre una estadía propia ya terminada.')
+        }
         return errores.reglaNegocio('Los datos no cumplen las reglas de la base de datos.')
     }
   }

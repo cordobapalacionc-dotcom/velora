@@ -5,8 +5,10 @@ const SELECT_RESERVA = `
          hotel_nombre AS hotelNombre, habitacion_nombre AS habitacionNombre,
          huesped_nombre AS huespedNombre, huesped_correo AS huespedCorreo,
          entrada, salida, huespedes, noches, precio_noche AS precioNoche, subtotal, impuestos,
-         tarifa_limpieza AS tarifaLimpieza, total, estado, fecha_creacion AS fechaCreacion,
-         fecha_check_in AS fechaCheckIn, fecha_check_out AS fechaCheckOut, fecha_cancelacion AS fechaCancelacion
+         tarifa_limpieza AS tarifaLimpieza, total, estado, cargo_cancelacion AS cargoCancelacion,
+         fecha_creacion AS fechaCreacion, fecha_check_in AS fechaCheckIn, fecha_check_out AS fechaCheckOut,
+         fecha_cancelacion AS fechaCancelacion,
+         (SELECT r.id FROM resenas r WHERE r.reserva_id = reservas.id) AS resenaId
   FROM reservas`
 
 const COLUMNA_FECHA_POR_ESTADO = {
@@ -15,9 +17,28 @@ const COLUMNA_FECHA_POR_ESTADO = {
   cancelada: 'fecha_cancelacion',
 }
 
+/** Agrega a cada reserva su historial de modificaciones (una sola consulta para toda la lista). */
+function conHistorial(reservas) {
+  if (!reservas.length) return reservas
+  const modificaciones = obtenerDb()
+    .prepare(
+      `SELECT reserva_id AS reservaId, por_correo AS por, detalle, total_anterior AS totalAnterior,
+              total_nuevo AS totalNuevo, fecha
+       FROM reserva_modificaciones
+       WHERE reserva_id IN (SELECT value FROM json_each(?))
+       ORDER BY fecha, id`
+    )
+    .all(JSON.stringify(reservas.map((r) => r.id)))
+  return reservas.map((r) => ({
+    ...r,
+    modificaciones: modificaciones.filter((m) => m.reservaId === r.id).map(({ reservaId: _id, ...m }) => m),
+  }))
+}
+
 export const reservasRepositorio = {
   buscarPorId(id) {
-    return obtenerDb().prepare(`${SELECT_RESERVA} WHERE id = ?`).get(id) ?? null
+    const reserva = obtenerDb().prepare(`${SELECT_RESERVA} WHERE id = ?`).get(id)
+    return reserva ? conHistorial([reserva])[0] : null
   },
 
   listar({ usuarioId, q, estado, hotelId } = {}) {
@@ -40,7 +61,7 @@ export const reservasRepositorio = {
       params.q = q.toLowerCase()
     }
     const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : ''
-    return obtenerDb().prepare(`${SELECT_RESERVA} ${where} ORDER BY entrada DESC, fecha_creacion DESC`).all(params)
+    return conHistorial(obtenerDb().prepare(`${SELECT_RESERVA} ${where} ORDER BY entrada DESC, fecha_creacion DESC`).all(params))
   },
 
   existeCodigo(codigo) {
@@ -102,26 +123,82 @@ export const reservasRepositorio = {
   },
 
   /** Reservas activas que se cruzan con el rango; sirve para explicar un rechazo. */
-  reservasQueSeCruzan(hotelId, habitacionId, entrada, salida) {
+  reservasQueSeCruzan(hotelId, habitacionId, entrada, salida, excluirId = null) {
     return obtenerDb()
       .prepare(
         `SELECT codigo, entrada, salida FROM reservas
          WHERE hotel_id = ? AND habitacion_id = ? AND estado IN ('confirmada', 'check-in')
-           AND entrada < ? AND salida > ?
+           AND entrada < ? AND salida > ? AND id IS NOT ?
          ORDER BY entrada`
       )
-      .all(hotelId, habitacionId, salida, entrada)
+      .all(hotelId, habitacionId, salida, entrada, excluirId)
+  },
+
+  /**
+   * Modifica habitación, fechas, huéspedes y montos en UNA sentencia, solo si:
+   *  - la reserva sigue en el estado que se leyó (nadie la cambió mientras tanto), y
+   *  - ninguna OTRA reserva activa ocupa esa habitación en las fechas nuevas (subconsulta NOT EXISTS).
+   * Devuelve true si se aplicó.
+   */
+  modificarSiDisponible(r) {
+    const { changes } = obtenerDb()
+      .prepare(
+        `UPDATE reservas
+         SET habitacion_id = :habitacionId, habitacion_nombre = :habitacionNombre,
+             entrada = :entrada, salida = :salida, huespedes = :huespedes, noches = :noches,
+             precio_noche = :precioNoche, subtotal = :subtotal, impuestos = :impuestos,
+             tarifa_limpieza = :tarifaLimpieza, total = :total
+         WHERE id = :id
+           AND estado = :estadoLeido
+           AND NOT EXISTS (
+             SELECT 1 FROM reservas otra
+             WHERE otra.id <> :id
+               AND otra.hotel_id = reservas.hotel_id
+               AND otra.habitacion_id = :habitacionId
+               AND otra.estado IN ('confirmada', 'check-in')
+               AND otra.entrada < :salida
+               AND otra.salida > :entrada
+           )`
+      )
+      .run({
+        id: r.id,
+        estadoLeido: r.estadoLeido,
+        habitacionId: r.habitacionId,
+        habitacionNombre: r.habitacionNombre,
+        entrada: r.entrada,
+        salida: r.salida,
+        huespedes: r.huespedes,
+        noches: r.noches,
+        precioNoche: r.precioNoche,
+        subtotal: r.subtotal,
+        impuestos: r.impuestos,
+        tarifaLimpieza: r.tarifaLimpieza,
+        total: r.total,
+      })
+    return changes === 1
+  },
+
+  registrarModificacion({ reservaId, usuarioId, porCorreo, detalle, totalAnterior, totalNuevo }) {
+    obtenerDb()
+      .prepare(
+        `INSERT INTO reserva_modificaciones (reserva_id, usuario_id, por_correo, detalle, total_anterior, total_nuevo)
+         VALUES (?, ?, ?, ?, ?, ?)`
+      )
+      .run(reservaId, usuarioId, porCorreo, detalle, totalAnterior, totalNuevo)
   },
 
   /**
    * Cambia el estado solo si la reserva sigue en `estadoActual` (control de concurrencia optimista).
-   * Devuelve true si se aplicó el cambio.
+   * Al cancelar se guarda también el cargo cobrado. Devuelve true si se aplicó el cambio.
    */
-  cambiarEstado(id, estadoActual, estadoNuevo, fecha) {
+  cambiarEstado(id, estadoActual, estadoNuevo, fecha, cargoCancelacion = null) {
     const columnaFecha = COLUMNA_FECHA_POR_ESTADO[estadoNuevo]
     const { changes } = obtenerDb()
-      .prepare(`UPDATE reservas SET estado = ?, ${columnaFecha} = ? WHERE id = ? AND estado = ?`)
-      .run(estadoNuevo, fecha, id, estadoActual)
+      .prepare(
+        `UPDATE reservas SET estado = ?, ${columnaFecha} = ?, cargo_cancelacion = COALESCE(?, cargo_cancelacion)
+         WHERE id = ? AND estado = ?`
+      )
+      .run(estadoNuevo, fecha, cargoCancelacion, id, estadoActual)
     return changes === 1
   },
 }

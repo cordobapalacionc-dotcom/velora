@@ -23,6 +23,21 @@ const esquemaEnv = z
     UPLOADS_RUTA: z.string().min(1).default('uploads'),
     IMAGEN_MAX_MB: z.coerce.number().positive().max(20).default(5),
     URL_PUBLICA: z.url().optional(),
+    // Dirección del sitio (frontend): se usa en los enlaces de los correos.
+    URL_SITIO: z.url().default('http://localhost:5173'),
+    CANCELACION_GRATIS_DIAS: z.coerce.number().int().min(0).max(60).default(2),
+    BLOQUEO_INTENTOS: z.coerce.number().int().min(3).max(50).default(5),
+    BLOQUEO_MINUTOS: z.coerce.number().int().min(1).max(1440).default(15),
+    ACCESOS_RETENCION_DIAS: z.coerce.number().int().min(7).max(3650).default(90),
+    // Pesos colombianos por dólar. Solo sirve para mostrar precios aproximados en USD: se cobra en COP.
+    TASA_USD: z.coerce.number().positive().default(4000),
+    // Correo saliente. Sin SMTP_HOST los correos se guardan como archivos en CORREOS_RUTA (modo desarrollo).
+    SMTP_HOST: z.string().optional(),
+    SMTP_PUERTO: z.coerce.number().int().min(1).max(65535).default(587),
+    SMTP_USUARIO: z.string().optional(),
+    SMTP_CLAVE: z.string().optional(),
+    CORREO_REMITENTE: z.string().default('Velora <no-responder@velora.com>'),
+    CORREOS_RUTA: z.string().min(1).default('data/correos'),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === 'production' && (!env.JWT_SECRETO || env.JWT_SECRETO.length < 32)) {
@@ -62,5 +77,25 @@ export const config = Object.freeze({
   reservas: Object.freeze({
     tarifaLimpieza: env.TARIFA_LIMPIEZA,
     impuestosPorcentaje: env.IMPUESTOS_PORCENTAJE,
+    cancelacionGratisDias: env.CANCELACION_GRATIS_DIAS,
+  }),
+  seguridad: Object.freeze({
+    bloqueoIntentos: env.BLOQUEO_INTENTOS,
+    bloqueoMinutos: env.BLOQUEO_MINUTOS,
+    accesosRetencionDias: env.ACCESOS_RETENCION_DIAS,
+  }),
+  urlSitio: env.URL_SITIO.replace(/\/+$/, ''),
+  tasaUsd: env.TASA_USD,
+  correo: Object.freeze({
+    smtp: env.SMTP_HOST
+      ? Object.freeze({
+          host: env.SMTP_HOST,
+          port: env.SMTP_PUERTO,
+          secure: env.SMTP_PUERTO === 465,
+          auth: env.SMTP_USUARIO ? { user: env.SMTP_USUARIO, pass: env.SMTP_CLAVE } : undefined,
+        })
+      : null,
+    remitente: env.CORREO_REMITENTE,
+    carpeta: resolve(RAIZ_BACKEND, env.CORREOS_RUTA),
   }),
 })
