@@ -1,35 +1,27 @@
 import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Award, BadgePercent, CalendarCheck, ConciergeBell } from 'lucide-react'
+import Imagen from '../components/Imagen.jsx'
 import SearchBar from '../components/SearchBar.jsx'
-import { destinos, colecciones, heroImagen } from './data/hotels.js'
-import { obtenerHoteles } from '../services/hotelesStore.js'
+import { useCatalogo } from '../context/CatalogoContext.jsx'
+import { useIdioma } from '../context/IdiomaContext.jsx'
+import { useConsulta } from '../hooks/useConsulta.js'
+import { api } from '../services/api.js'
+import { HERO_IMAGEN } from '../utils/imagenes.js'
 
-const servicios = [
-  {
-    icono: BadgePercent,
-    titulo: 'Garantía del mejor precio',
-    descripcion: 'Si encuentras una mejor tarifa para la misma estadía, igualamos el precio.',
-  },
-  {
-    icono: ConciergeBell,
-    titulo: 'Conserjería 24/7',
-    descripcion: 'Un equipo disponible a cualquier hora para resolver lo que necesites.',
-  },
-  {
-    icono: CalendarCheck,
-    titulo: 'Cancelación flexible',
-    descripcion: 'Cambia de planes sin complicaciones en la mayoría de nuestras propiedades.',
-  },
-  {
-    icono: Award,
-    titulo: 'Recompensas por nivel de fidelidad',
-    descripcion: 'Entre más viajas con nosotros, más beneficios exclusivos desbloqueas.',
-  },
+const SERVICIOS = [
+  { icono: BadgePercent, clave: 'precio' },
+  { icono: ConciergeBell, clave: 'conserjeria' },
+  { icono: CalendarCheck, clave: 'cancelacion' },
+  { icono: Award, clave: 'recompensas' },
 ]
 
 export default function Home() {
-  const testimonio = obtenerHoteles().find((h) => h.testimonio)?.testimonio
+  const { destinos, colecciones, configuracion } = useCatalogo()
+  const { t, tr } = useIdioma()
+  const { datos: hoteles } = useConsulta('hoteles', () => api.hoteles.listar())
+  const hotelConTestimonio = hoteles?.find((h) => h.testimonio)
+  const testimonio = hotelConTestimonio && (tr(hotelConTestimonio, 'testimonio') || hotelConTestimonio.testimonio)
   const { hash } = useLocation()
 
   // El enlace "Colecciones" del menú lleva a /#colecciones: se desplaza hasta esa sección.
@@ -39,66 +31,56 @@ export default function Home() {
 
   return (
     <>
-      <section
-        className="hero"
-        style={{ backgroundImage: `url(${heroImagen})` }}
-      >
+      <section className="hero">
+        {/* La imagen mide al menos 620 px de alto (16:9 → 1100 px de ancho): en celular también se pide grande. */}
+        <Imagen className="hero__fondo" src={HERO_IMAGEN} alt="" sizes="(max-width: 1100px) 1100px, 100vw" prioridad />
         <div className="hero__superposicion">
-          <p className="hero__etiqueta">Hospitalidad selecta</p>
-          <h1 className="hero__titulo">
-            Escapa de lo cotidiano. Llega a un estado de pura serenidad.
-          </h1>
+          <p className="hero__etiqueta">{t('inicio.etiqueta')}</p>
+          <h1 className="hero__titulo">{t('inicio.titulo')}</h1>
           <SearchBar variante="hero" />
         </div>
       </section>
 
       <section className="seccion">
-        <p className="seccion__etiqueta">Destinos curados</p>
+        <p className="seccion__etiqueta">{t('inicio.destinosEtiqueta')}</p>
         <div className="seccion__encabezado">
-          <h2>Destinos esculpidos en tranquilidad</h2>
-          <p className="seccion__descripcion">
-            Explora los rincones más exclusivos del mundo, seleccionados por su belleza natural,
-            su servicio impecable y su promesa de calma absoluta.
-          </p>
+          <h2>{t('inicio.destinosTitulo')}</h2>
+          <p className="seccion__descripcion">{t('inicio.destinosDescripcion')}</p>
         </div>
         <div className="grid-destinos">
           {destinos.map((d) => (
-            <Link key={d.id} to={`/buscar?destino=${encodeURIComponent(d.nombre)}`} className="tarjeta-destino">
-              <img src={d.imagen} alt={d.nombre} width={500} height={400} loading="lazy" />
-              <span className="tarjeta-destino__nombre">{d.nombre}</span>
+            <Link key={d.id} to={`/buscar?destino=${encodeURIComponent(tr(d, 'nombre'))}`} className="tarjeta-destino">
+              <Imagen src={d.imagen} alt="" width={500} height={400} sizes="(max-width: 720px) 100vw, 220px" />
+              <span className="tarjeta-destino__nombre">{tr(d, 'nombre')}</span>
             </Link>
           ))}
         </div>
       </section>
 
       <section className="seccion seccion--clara">
-        <p className="seccion__etiqueta">Por qué Velora</p>
-        <h2 className="seccion__titulo-centrado">Servicio impecable en cada etapa</h2>
+        <p className="seccion__etiqueta">{t('inicio.porQueEtiqueta')}</p>
+        <h2 className="seccion__titulo-centrado">{t('inicio.porQueTitulo')}</h2>
         <div className="grid-servicios">
-          {servicios.map((s) => (
-            <div key={s.titulo} className="tarjeta-servicio">
+          {SERVICIOS.map((s) => (
+            <div key={s.clave} className="tarjeta-servicio">
               <span className="tarjeta-servicio__icono" aria-hidden="true">
                 <s.icono size={22} strokeWidth={1.5} />
               </span>
-              <h3>{s.titulo}</h3>
-              <p>{s.descripcion}</p>
+              <h3>{t(`inicio.servicio.${s.clave}.titulo`)}</h3>
+              <p>{t(`inicio.servicio.${s.clave}.texto`, { horas: configuracion.cancelacionGratisDias * 24 })}</p>
             </div>
           ))}
         </div>
       </section>
 
       <section className="seccion" id="colecciones">
-        <p className="seccion__etiqueta">Colecciones</p>
-        <h2 className="seccion__titulo-centrado">Colecciones creadas para cada estado de ánimo</h2>
+        <p className="seccion__etiqueta">{t('inicio.coleccionesEtiqueta')}</p>
+        <h2 className="seccion__titulo-centrado">{t('inicio.coleccionesTitulo')}</h2>
         <div className="grid-colecciones">
           {colecciones.map((c) => (
-            <Link
-              key={c.id}
-              to={`/buscar?coleccion=${c.id}`}
-              className="tarjeta-coleccion"
-            >
-              <img src={c.imagen} alt={c.nombre} width={500} height={400} loading="lazy" />
-              <span className="tarjeta-coleccion__nombre">{c.nombre}</span>
+            <Link key={c.id} to={`/buscar?coleccion=${c.id}`} className="tarjeta-coleccion">
+              <Imagen src={c.imagen} alt="" width={500} height={400} sizes="(max-width: 720px) 100vw, 400px" />
+              <span className="tarjeta-coleccion__nombre">{tr(c, 'nombre')}</span>
             </Link>
           ))}
         </div>
@@ -106,14 +88,16 @@ export default function Home() {
 
       {testimonio && (
         <section className="seccion seccion--testimonio">
-          <div className="testimonio">
+          <figure className="testimonio">
             <p className="testimonio__estrellas" aria-hidden="true">
               ★★★★★
             </p>
-            <p className="testimonio__texto">"{testimonio.texto}"</p>
-            <p className="testimonio__autor">{testimonio.autor}</p>
-            <p className="testimonio__detalle">{testimonio.detalle}</p>
-          </div>
+            <blockquote className="testimonio__texto">"{testimonio.texto}"</blockquote>
+            <figcaption>
+              <p className="testimonio__autor">{testimonio.autor}</p>
+              <p className="testimonio__detalle">{testimonio.detalle}</p>
+            </figcaption>
+          </figure>
         </section>
       )}
     </>

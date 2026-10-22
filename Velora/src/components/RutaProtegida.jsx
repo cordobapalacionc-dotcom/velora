@@ -6,7 +6,7 @@ export default function RutaProtegida({ rolesPermitidos, children }) {
   const ubicacion = useLocation()
 
   if (!estaAutenticado) {
-    return <Navigate to="/iniciar-sesion" state={{ desde: ubicacion.pathname }} replace />
+    return <Navigate to="/iniciar-sesion" state={{ desde: ubicacion.pathname + ubicacion.search }} replace />
   }
 
   if (rolesPermitidos && !rolesPermitidos.includes(usuario.rol)) {

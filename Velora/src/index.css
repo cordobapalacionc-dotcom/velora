@@ -1860,6 +1860,243 @@ select {
   text-decoration: underline;
 }
 
+/* ===================== Cuadro de diálogo (modificar reserva) ===================== */
+.dialogo {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100svh - 32px);
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: var(--crema);
+  color: var(--texto);
+  box-shadow: 0 24px 60px rgba(20, 24, 31, 0.25);
+}
+.dialogo::backdrop {
+  background: rgba(20, 24, 31, 0.55);
+}
+.dialogo__contenido {
+  margin: 0;
+  background: transparent;
+}
+.dialogo__encabezado .seccion__etiqueta {
+  text-align: left;
+  margin-bottom: 4px;
+}
+.dialogo__encabezado h2 {
+  font-size: 26px;
+}
+.dialogo__subtitulo {
+  color: var(--texto-suave);
+  font-size: 14px;
+  margin-top: 2px;
+}
+.dialogo__aviso {
+  background: #eef3fb;
+  color: #2a4f86;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.form-hotel select:disabled,
+.form-hotel input:disabled {
+  background: var(--crema-suave);
+  color: var(--texto-suave);
+  cursor: not-allowed;
+}
+/* Los campos no pueden ensanchar el cuadro (p. ej. un nombre de habitación largo en el selector) */
+.dialogo .form-hotel__grid > *,
+.dialogo .form-hotel__grid label {
+  min-width: 0;
+}
+.dialogo select,
+.dialogo input {
+  width: 100%;
+  min-width: 0;
+}
+.dialogo__comparacion {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.dialogo__comparacion > div {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dialogo__comparacion > div:last-child {
+  border-color: var(--dorado-texto);
+}
+.dialogo__comparacion span {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--texto-suave);
+}
+.dialogo__comparacion strong {
+  font-size: 20px;
+  color: var(--marino);
+}
+.dialogo__comparacion small {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+.dialogo__historial {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+.dialogo__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ===================== Dashboard de accesos: gráfica ===================== */
+/* Color de datos validado (luminosidad, saturación y contraste ≥ 3:1 sobre blanco). */
+.grafica {
+  margin: 0;
+}
+.grafica__titulo {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--marino);
+  margin-bottom: 20px;
+}
+.grafica__area {
+  position: relative;
+  height: 180px;
+  border-top: 1px solid #efe8da;
+  border-bottom: 1px solid var(--borde);
+}
+.grafica__maximo {
+  position: absolute;
+  top: -9px;
+  left: 0;
+  padding-right: 6px;
+  background: var(--crema);
+  font-size: 11px;
+  color: var(--texto-suave);
+}
+.grafica__barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100%;
+  padding-left: 24px;
+}
+.grafica__columna {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-radius: 4px 4px 0 0;
+}
+.grafica__columna:hover {
+  background: rgba(169, 119, 42, 0.06);
+}
+.grafica__barra {
+  width: min(24px, 100%);
+  background: #a9772a;
+  border-radius: 4px 4px 0 0;
+}
+.grafica__barra--activa {
+  background: #8c6220;
+}
+.grafica__tooltip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(20, 24, 31, 0.12);
+  font-size: 12px;
+  color: var(--texto);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.grafica__tooltip strong {
+  color: var(--marino);
+}
+.grafica__tooltip--izq {
+  left: 0;
+  transform: translateY(-100%);
+}
+.grafica__tooltip--der {
+  left: auto;
+  right: 0;
+  transform: translateY(-100%);
+}
+.grafica__ejex {
+  display: flex;
+  gap: 2px;
+  padding-left: 24px;
+  margin-top: 6px;
+}
+.grafica__ejex span {
+  position: relative;
+  height: 14px;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--texto-suave);
+  white-space: nowrap;
+}
+/* El rótulo flota centrado bajo su barra; el último se alinea al borde derecho para no salirse */
+.grafica__ejex em {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-style: normal;
+}
+.grafica__ejex span:last-child em {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+.grafica__tabla {
+  margin-top: 16px;
+}
+.grafica__tabla summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--dorado-texto);
+  text-decoration: underline;
+  margin-bottom: 10px;
+}
+
+/* Resultado de un acceso: siempre ícono + texto, nunca solo color */
+.resultado {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.resultado--exito {
+  color: #2c7a43;
+}
+.resultado--fallo {
+  color: #a33636;
+}
+.dashboard__stat .icono-en-linea svg {
+  color: var(--dorado-texto);
+}
+
 /* ===================== Login: ayuda de contraseña ===================== */
 .pagina-login__ayuda {
   margin-top: 12px;
@@ -2111,6 +2348,15 @@ select {
 
 /* Celulares pequeños (iPhone SE y similares) */
 @media (max-width: 400px) {
+  .dialogo__contenido {
+    padding: 20px 16px;
+  }
+  .dialogo__comparacion {
+    grid-template-columns: 1fr;
+  }
+  .dialogo__acciones .btn {
+    flex: 1 1 100%;
+  }
   .navbar__logo {
     font-size: 20px;
   }

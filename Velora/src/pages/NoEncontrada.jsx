@@ -1,21 +1,23 @@
 import { Link } from 'react-router-dom'
 import { Compass } from 'lucide-react'
+import { useIdioma } from '../context/IdiomaContext.jsx'
 
 export default function NoEncontrada() {
+  const { t } = useIdioma()
   return (
     <div className="pagina-vacia">
       <span className="estado-vacio__icono" aria-hidden="true">
         <Compass size={26} strokeWidth={1.5} />
       </span>
-      <p className="seccion__etiqueta">Error 404</p>
-      <h1>Esta página no existe</h1>
-      <p>Puede que el enlace esté mal escrito o que la página se haya movido.</p>
+      <p className="seccion__etiqueta">{t('noEncontrada.etiqueta')}</p>
+      <h1>{t('noEncontrada.titulo')}</h1>
+      <p>{t('noEncontrada.texto')}</p>
       <div className="estado-vacio__sugerencias">
         <Link to="/" className="btn btn--dorado">
-          Ir al inicio
+          {t('noEncontrada.inicio')}
         </Link>
         <Link to="/buscar" className="btn btn--fantasma">
-          Ver hoteles
+          {t('noEncontrada.hoteles')}
         </Link>
       </div>
     </div>

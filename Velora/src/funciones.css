@@ -1,0 +1,761 @@
+/* =====================================================================
+   Estilos de las funciones nuevas: idioma y moneda, calendario, reseñas,
+   políticas, recuperación de contraseña, métricas, temporadas e imágenes
+   adaptables. Se carga después de index.css y usa sus mismos tokens.
+   ===================================================================== */
+
+/* Texto solo para lectores de pantalla */
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* El texto "solo-lector" es absoluto: el contenedor de la tabla debe ser su referencia,
+   si no, ensancha la página aunque la tabla tenga su propio scroll horizontal. */
+.tabla-envoltorio {
+  position: relative;
+}
+
+/* Seis pestañas en el panel: en pantallas angostas se desplazan horizontalmente */
+.dashboard__tabs {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.dashboard__tabs button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Imagen principal del inicio: <img> con varios tamaños en lugar de fondo CSS */
+.hero {
+  overflow: hidden;
+}
+.hero__fondo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.hero::before {
+  z-index: 1;
+}
+.hero__superposicion {
+  z-index: 2;
+}
+
+/* Testimonio como <figure>/<blockquote> */
+.testimonio blockquote {
+  margin: 0;
+}
+
+/* Pie de página: marca + 3 columnas (destinos, colecciones, ayuda) */
+.footer__contenido {
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+}
+@media (max-width: 720px) {
+  .footer__contenido {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filtros h2 {
+  font-size: 18px;
+  margin-bottom: 0;
+}
+
+/* ---------- Selector de idioma y moneda ---------- */
+.preferencias {
+  position: relative;
+}
+.preferencias__boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid rgba(250, 246, 238, 0.35);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--crema);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.preferencias__boton:hover {
+  border-color: var(--crema);
+}
+.preferencias__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 30;
+  width: 250px;
+  background: var(--blanco);
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(20, 24, 31, 0.18);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.preferencias__menu fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.preferencias__menu legend {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  margin-bottom: 4px;
+}
+.preferencias__menu label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.preferencias__menu input {
+  accent-color: var(--dorado-texto);
+}
+.preferencias__nota {
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ---------- Estados de carga y avisos ---------- */
+.cargando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 16px;
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+.cargando__punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--dorado);
+  animation: latido 1s ease-in-out infinite alternate;
+}
+@keyframes latido {
+  from {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cargando__punto {
+    animation: none;
+  }
+}
+.aviso-exito {
+  background: #eef7ee;
+  color: #2c6e31;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ---------- Diálogos ---------- */
+.dialogo__contenido {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.dialogo .form-hotel {
+  background: none;
+  padding: 0;
+  margin: 0;
+}
+.dialogo__nota {
+  background: #eef7ee;
+  color: #2c6e31;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin: 0;
+}
+.dialogo__aviso {
+  margin: 0;
+}
+.dialogo__cancelar {
+  border-top: 1px solid var(--borde);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- Login: requisitos y modo desarrollo ---------- */
+.pagina-login__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pagina-login__requisito {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--texto-suave);
+}
+.pagina-login__desarrollo {
+  margin-top: 8px;
+  font-size: 12px;
+}
+.pagina-login__ayuda p {
+  margin: 0 0 8px;
+}
+
+/* ---------- Habitaciones y panel de reserva ---------- */
+.opcion-habitacion__ocupada {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a33636;
+}
+.panel-reserva__temporada {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.panel-reserva__temporada--alta {
+  color: #8a5a12;
+}
+.panel-reserva__temporada--baja {
+  color: #255f7a;
+}
+.panel-reserva__politica {
+  font-size: 13px;
+  color: #2c6e31;
+  background: #eef7ee;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 12px 0;
+  align-items: flex-start;
+}
+.panel-reserva__politica svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.panel-reserva__confirmacion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.panel-reserva__confirmacion p {
+  margin: 0;
+}
+
+/* ---------- Calendario de disponibilidad ---------- */
+.calendario {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.calendario__navegacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.calendario__navegacion button {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--borde);
+  border-radius: 50%;
+  background: var(--blanco);
+  color: var(--marino);
+  cursor: pointer;
+}
+.calendario__navegacion button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.calendario__instruccion {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--marino);
+  text-align: center;
+}
+.calendario__meses {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+.calendario__titulo-mes {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--marino);
+  text-align: center;
+}
+/* Solo la primera letra en mayúscula: "Marzo de 2027" (capitalize daría "Marzo De 2027") */
+.calendario__titulo-mes::first-letter {
+  text-transform: uppercase;
+}
+.calendario__semana,
+.calendario__dias {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+.calendario__semana span {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  padding-bottom: 4px;
+}
+.calendario__dia {
+  position: relative;
+  aspect-ratio: 1;
+  min-height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: var(--blanco);
+  color: var(--marino);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.calendario__dia:hover:not([aria-disabled='true']) {
+  background: var(--crema-suave);
+}
+.calendario__dia[aria-disabled='true'] {
+  color: #a9a196;
+  cursor: default;
+}
+/* Ocupado: tachado y con rayas, no solo por color */
+.calendario__dia--ocupado {
+  text-decoration: line-through;
+  background: repeating-linear-gradient(135deg, #f3eee5 0 4px, #e9e2d5 4px 6px);
+}
+.calendario__dia--ocupado[aria-disabled='false'] {
+  color: var(--marino);
+}
+.calendario__dia--hoy {
+  box-shadow: inset 0 0 0 1px var(--dorado-texto);
+}
+.calendario__dia--rango {
+  background: #f1e5cf;
+  border-radius: 0;
+}
+.calendario__dia--extremo,
+.calendario__dia--extremo:hover:not([aria-disabled='true']) {
+  background: var(--marino);
+  color: var(--crema);
+  font-weight: 600;
+  text-decoration: none;
+}
+/* Temporadas: marca pequeña bajo el número (alta: dorado; baja: azul) */
+.calendario__dia--alta::after,
+.calendario__dia--baja::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+}
+.calendario__dia--alta::after {
+  background: #a9772a;
+}
+.calendario__dia--baja::after {
+  background: #2f7a9c;
+}
+.calendario__dia--extremo.calendario__dia--alta::after,
+.calendario__dia--extremo.calendario__dia--baja::after {
+  background: var(--crema);
+}
+.calendario__leyenda {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+.calendario__leyenda li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.calendario__muestra {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--borde);
+}
+.calendario__muestra--seleccion {
+  background: var(--marino);
+  border-color: var(--marino);
+}
+.calendario__muestra--ocupado {
+  background: repeating-linear-gradient(135deg, #f3eee5 0 3px, #d9d0c0 3px 5px);
+}
+.calendario__muestra--alta,
+.calendario__muestra--baja {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+}
+.calendario__muestra--alta {
+  background: #a9772a;
+}
+.calendario__muestra--baja {
+  background: #2f7a9c;
+}
+
+/* ---------- Reseñas ---------- */
+.resenas {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.resena {
+  border-bottom: 1px solid var(--borde);
+  padding-bottom: 16px;
+}
+.resena:last-child {
+  border-bottom: none;
+}
+.resena__encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  font-size: 14px;
+  color: var(--marino);
+}
+.resena__verificada {
+  font-size: 12px;
+  color: #2c6e31;
+}
+.resena__texto {
+  margin: 8px 0 0;
+  line-height: 1.6;
+}
+.resenas__vacio,
+.resenas__total {
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+.entrada-estrellas {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.entrada-estrellas legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--marino);
+  margin-bottom: 4px;
+}
+.entrada-estrellas__opciones {
+  display: flex;
+  gap: 2px;
+}
+.entrada-estrellas__estrella {
+  position: relative;
+  font-size: 26px;
+  line-height: 1;
+  color: #d4cbbb;
+  cursor: pointer;
+  padding: 2px;
+}
+.entrada-estrellas__estrella--llena {
+  color: var(--dorado);
+}
+.entrada-estrellas__estrella input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.entrada-estrellas__estrella:has(input:focus-visible) {
+  outline: 2px solid var(--dorado-texto);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+.form-resena {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.form-resena__criterios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.form-resena label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--marino);
+}
+.form-resena textarea {
+  font: inherit;
+  font-weight: 400;
+  padding: 10px 12px;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  background: var(--blanco);
+  resize: vertical;
+}
+
+/* ---------- Mis reservas ---------- */
+.tarjeta-reserva__politica,
+.tarjeta-reserva__modificada {
+  margin: 8px 0 0;
+  font-size: 13px;
+  align-items: flex-start;
+}
+.tarjeta-reserva__politica {
+  color: var(--texto-suave);
+}
+.tarjeta-reserva__modificada {
+  color: #2a4f86;
+}
+.tarjeta-reserva__politica svg,
+.tarjeta-reserva__modificada svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.tarjeta-reserva__resena {
+  font-size: 13px;
+  color: #2c6e31;
+  font-weight: 600;
+}
+.tarjeta-reserva__boton {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+/* ---------- Página de políticas ---------- */
+.pagina-politicas {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+.pagina-politicas .seccion__etiqueta {
+  text-align: left;
+}
+.pagina-politicas section {
+  scroll-margin-top: 96px;
+}
+.pagina-politicas p {
+  line-height: 1.7;
+  margin: 12px 0 0;
+}
+
+/* ---------- Panel: métricas, temporadas, reseñas, hoteles ---------- */
+.dashboard__encabezado {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.dashboard__stats--seis {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.dashboard__stat-nota {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+.dashboard__periodo,
+.dashboard__ayuda {
+  font-size: 13px;
+  color: var(--texto-suave);
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+.dashboard__graficas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 32px;
+}
+.dashboard__filtro-texto {
+  padding: 8px 10px;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  font-size: 13px;
+  min-width: 0;
+}
+.medidor {
+  display: inline-block;
+  vertical-align: middle;
+  width: 60px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 4px;
+  background: #efe8da;
+  overflow: hidden;
+}
+.medidor span {
+  display: block;
+  height: 100%;
+  background: #a9772a;
+}
+.etiqueta-recargo {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.etiqueta-recargo--alta {
+  background: #f6ecd9;
+  color: #7a4f0f;
+}
+.etiqueta-recargo--baja {
+  background: #e3f0f6;
+  color: #1f5670;
+}
+.tabla__fila--pasada td {
+  color: var(--texto-suave);
+}
+.tabla__texto-largo {
+  max-width: 360px;
+  white-space: normal;
+}
+.form-hotel__casillas {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.form-hotel__casillas legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--marino);
+  margin-bottom: 6px;
+}
+.form-hotel__casillas label {
+  font-weight: 400;
+}
+.form-hotel__traducciones summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dorado-texto);
+}
+.form-hotel__traducciones[open] summary {
+  margin-bottom: 8px;
+}
+.form-hotel__traducciones label {
+  margin-top: 12px;
+}
+.form-hotel__acciones {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.admin-habitaciones td input + input {
+  margin-top: 6px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard__graficas {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .calendario__meses {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .dashboard__stats--seis {
+    grid-template-columns: 1fr 1fr;
+  }
+  .form-resena__criterios {
+    grid-template-columns: 1fr;
+  }
+  .pagina-politicas {
+    padding: 32px 16px 64px;
+  }
+  .preferencias__boton {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .dialogo__contenido {
+    padding: 20px 16px;
+  }
+  .dashboard__stats--seis {
+    grid-template-columns: 1fr;
+  }
+  /* En pantallas muy angostas el botón de registro se oculta: queda "Entrar", que también permite crear cuenta */
+  .navbar__registro {
+    display: none;
+  }
+  /* Barra superior a 320 px: solo el idioma en el selector y el saludo recortado */
+  .preferencias__moneda {
+    display: none;
+  }
+  .navbar__usuario-boton {
+    max-width: 112px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .preferencias__menu {
+    right: -64px;
+  }
+}

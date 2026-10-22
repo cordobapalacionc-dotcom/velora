@@ -1,108 +1,79 @@
-import { createContext, useContext, useState } from 'react'
-import { iniciarSesionApi } from '../services/api.js'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { alExpirarSesion, api, establecerToken } from '../services/api.js'
 
 const AuthContext = createContext(null)
-
-const CLAVE_USUARIOS = 'velora_usuarios'
 const CLAVE_SESION = 'velora_sesion'
 
-const USUARIOS_DEMO = [
-  { nombre: 'Administrador Velora', correo: 'admin@velora.com', contrasena: 'admin123', rol: 'admin' },
-  { nombre: 'Recepción Velora', correo: 'recepcion@velora.com', contrasena: 'recepcion123', rol: 'recepcionista' },
-]
-
-function leerUsuarios() {
-  let usuarios = []
-  try {
-    const guardados = JSON.parse(localStorage.getItem(CLAVE_USUARIOS))
-    if (Array.isArray(guardados)) usuarios = guardados
-  } catch {
-    usuarios = []
-  }
-
-  let cambiaron = false
-  USUARIOS_DEMO.forEach((demo) => {
-    const indice = usuarios.findIndex((u) => u.correo === demo.correo)
-    if (indice === -1) {
-      usuarios.push(demo)
-      cambiaron = true
-    } else if (usuarios[indice].contrasena !== demo.contrasena || usuarios[indice].rol !== demo.rol) {
-      // Corrige la cuenta demo si quedó pisada por un registro previo con el mismo correo.
-      usuarios[indice] = { ...usuarios[indice], ...demo }
-      cambiaron = true
-    }
-  })
-  if (cambiaron) guardarUsuarios(usuarios)
-  return usuarios
-}
-
-function guardarUsuarios(usuarios) {
-  localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuarios))
-}
-
+// La sesión es el token del backend y los datos públicos del usuario. Las cuentas y las contraseñas
+// viven solo en el backend: el navegador nunca guarda contraseñas.
 function leerSesion() {
   try {
-    return JSON.parse(localStorage.getItem(CLAVE_SESION))
+    const sesion = JSON.parse(localStorage.getItem(CLAVE_SESION))
+    return sesion?.token && sesion?.usuario ? sesion : null
   } catch {
     return null
   }
 }
 
+function guardarSesion(sesion) {
+  establecerToken(sesion?.token)
+  try {
+    if (sesion) localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion))
+    else localStorage.removeItem(CLAVE_SESION)
+  } catch {
+    // Sin almacenamiento disponible: la sesión dura mientras la pestaña esté abierta.
+  }
+}
+
+// El token debe estar listo antes de la primera petición, incluso las de los componentes hijos.
+const sesionInicial = leerSesion()
+establecerToken(sesionInicial?.token)
+
 export function AuthProvider({ children }) {
-  const [usuario, setUsuario] = useState(leerSesion)
+  const [sesion, setSesion] = useState(sesionInicial)
+  const [sesionExpirada, setSesionExpirada] = useState(false)
 
-  // Pide en segundo plano un token al backend y lo agrega a la sesión. Hoy solo lo necesita
-  // la subida de imágenes; si el backend está apagado, el login local sigue funcionando igual.
-  function conectarConApi(correo, contrasena) {
-    iniciarSesionApi(correo, contrasena)
-      .then((token) => {
+  function aplicar(nueva) {
+    guardarSesion(nueva)
+    setSesion(nueva)
+  }
+
+  // Si el backend rechaza el token (venció o se cambió la contraseña), se cierra la sesión y se avisa.
+  useEffect(() => {
+    alExpirarSesion(() => {
+      guardarSesion(null)
+      setSesion(null)
+      setSesionExpirada(true)
+    })
+  }, [])
+
+  // Al abrir el sitio se confirma que la sesión guardada sigue siendo válida (y se refresca nombre y rol).
+  useEffect(() => {
+    if (!sesionInicial) return
+    api.auth
+      .yo()
+      .then(({ usuario }) => {
         const actual = leerSesion()
-        if (actual?.correo !== correo) return // el usuario cerró sesión o cambió de cuenta mientras tanto
-        const sesion = { ...actual, token }
-        localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion))
-        setUsuario(sesion)
+        if (actual?.token === sesionInicial.token) aplicar({ ...actual, usuario })
       })
-      .catch(() => {})
-  }
+      .catch(() => {}) // 401 ya lo maneja alExpirarSesion; si el backend está apagado, se mantiene la sesión
+  }, [])
 
-  function iniciarSesion(correo, contrasena) {
-    const usuarios = leerUsuarios()
-    const encontrado = usuarios.find((u) => u.correo === correo.trim().toLowerCase())
-    if (!encontrado || encontrado.contrasena !== contrasena) {
-      throw new Error('Correo o contraseña incorrectos.')
-    }
-    const sesion = { nombre: encontrado.nombre, correo: encontrado.correo, rol: encontrado.rol }
-    localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion))
-    setUsuario(sesion)
-    conectarConApi(sesion.correo, contrasena)
-    return sesion
-  }
-
-  function registrarse(nombre, correo, contrasena) {
-    const usuarios = leerUsuarios()
-    const correoNormalizado = correo.trim().toLowerCase()
-    if (usuarios.some((u) => u.correo === correoNormalizado)) {
-      throw new Error('Ya existe una cuenta registrada con ese correo.')
-    }
-    const nuevoUsuario = { nombre: nombre.trim(), correo: correoNormalizado, contrasena, rol: 'cliente' }
-    guardarUsuarios([...usuarios, nuevoUsuario])
-    const sesion = { nombre: nuevoUsuario.nombre, correo: nuevoUsuario.correo, rol: nuevoUsuario.rol }
-    localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion))
-    setUsuario(sesion)
-    return sesion
-  }
-
-  function cerrarSesion() {
-    localStorage.removeItem(CLAVE_SESION)
-    setUsuario(null)
+  /** Guarda la sesión que devuelve el backend tras iniciar sesión, registrarse o restablecer la contraseña. */
+  function iniciarCon({ token, usuario }) {
+    setSesionExpirada(false)
+    aplicar({ token, usuario })
+    return usuario
   }
 
   const valor = {
-    usuario,
-    estaAutenticado: Boolean(usuario),
-    iniciarSesion,
-    registrarse,
-    cerrarSesion,
+    usuario: sesion ? { ...sesion.usuario, token: sesion.token } : null,
+    estaAutenticado: Boolean(sesion),
+    sesionExpirada,
+    iniciarSesion: async (correo, contrasena) => iniciarCon(await api.auth.login(correo, contrasena)),
+    registrarse: async (nombre, correo, contrasena) => iniciarCon(await api.auth.registro(nombre, correo, contrasena)),
+    iniciarCon,
+    cerrarSesion: () => aplicar(null),
   }
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>

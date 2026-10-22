@@ -1,8 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useIdioma } from '../context/IdiomaContext.jsx'
+import { hoyLocal, sumarDias } from '../utils/fechas.js'
+
+export const OPCIONES_HUESPEDES = [1, 2, 3, 4, 5, 6]
 
 export default function SearchBar({ valoresIniciales, variante = 'hero' }) {
   const navegar = useNavigate()
+  const { t } = useIdioma()
   const [destino, setDestino] = useState(valoresIniciales?.destino ?? '')
   const [entrada, setEntrada] = useState(valoresIniciales?.entrada ?? '')
   const [salida, setSalida] = useState(valoresIniciales?.salida ?? '')
@@ -13,43 +18,47 @@ export default function SearchBar({ valoresIniciales, variante = 'hero' }) {
     const params = new URLSearchParams()
     if (destino) params.set('destino', destino)
     if (entrada) params.set('entrada', entrada)
-    if (salida) params.set('salida', salida)
+    if (salida && (!entrada || salida > entrada)) params.set('salida', salida)
     if (huespedes) params.set('huespedes', huespedes)
     navegar(`/buscar?${params.toString()}`)
   }
 
   return (
-    <form className={`search-bar search-bar--${variante}`} onSubmit={manejarBusqueda}>
+    <form className={`search-bar search-bar--${variante}`} onSubmit={manejarBusqueda} role="search">
       <label className="search-bar__campo">
-        <span>Destino</span>
+        <span>{t('buscar.destino')}</span>
         <input
           type="text"
-          placeholder="¿A dónde quieres ir?"
+          placeholder={t('buscar.destinoPista')}
           value={destino}
           onChange={(e) => setDestino(e.target.value)}
         />
       </label>
       <label className="search-bar__campo">
-        <span>Llegada</span>
-        <input type="date" value={entrada} onChange={(e) => setEntrada(e.target.value)} />
+        <span>{t('buscar.llegada')}</span>
+        <input type="date" value={entrada} min={hoyLocal()} onChange={(e) => setEntrada(e.target.value)} />
       </label>
       <label className="search-bar__campo">
-        <span>Salida</span>
-        <input type="date" value={salida} onChange={(e) => setSalida(e.target.value)} />
+        <span>{t('buscar.salida')}</span>
+        <input
+          type="date"
+          value={salida}
+          min={entrada ? sumarDias(entrada, 1) : hoyLocal()}
+          onChange={(e) => setSalida(e.target.value)}
+        />
       </label>
       <label className="search-bar__campo">
-        <span>Huéspedes</span>
+        <span>{t('buscar.huespedes')}</span>
         <select value={huespedes} onChange={(e) => setHuespedes(e.target.value)}>
-          <option value="1">1 huésped</option>
-          <option value="2">2 huéspedes</option>
-          <option value="3">3 huéspedes</option>
-          <option value="4">4 huéspedes</option>
-          <option value="5">5 huéspedes</option>
-          <option value="6">6 huéspedes</option>
+          {OPCIONES_HUESPEDES.map((n) => (
+            <option key={n} value={n}>
+              {t(n === 1 ? 'comun.huesped' : 'comun.huespedes', { n })}
+            </option>
+          ))}
         </select>
       </label>
       <button type="submit" className="btn btn--dorado search-bar__boton">
-        Buscar
+        {t('buscar.boton')}
       </button>
     </form>
   )
