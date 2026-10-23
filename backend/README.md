@@ -21,6 +21,7 @@ npm run dev               # http://localhost:4000/api  (se recarga al guardar)
 | `npm start`        | Servidor en modo normal                                       |
 | `npm test`         | Pruebas de integración (BD en memoria, no toca tus datos)     |
 | `npm run db:reset` | Borra `data/velora.db` y la recrea con los datos semilla      |
+| `npm run db:borrar-pruebas` | Muestra los usuarios de prueba (`* Prueba`, `@correo.com`); con `-- --confirmar` hace una copia y los borra con sus reservas |
 
 La base de datos se crea y se llena sola la primera vez (hoteles, colecciones, textos en inglés y temporadas de ejemplo).
 Si cambias una tabla existente en `esquema.sql`, sube `VERSION_ESQUEMA` en `db/conexion.js`: el servidor
@@ -40,7 +41,7 @@ muestra en la consola; ábrelo en el navegador para verlo. En desarrollo, `POST 
 el enlace en `enlaceDesarrollo` para poder probar sin servidor de correo (nunca en producción ni con SMTP).
 Para enviar correos de verdad, define `SMTP_HOST`, `SMTP_PUERTO`, `SMTP_USUARIO`, `SMTP_CLAVE` y `CORREO_REMITENTE`.
 
-Se envía un correo al confirmar, modificar (por el hotel) o cancelar una reserva, al pedir un enlace para
+Se envía un correo al crear la cuenta (bienvenida), al confirmar, modificar (por el hotel) o cancelar una reserva, al pedir un enlace para
 restablecer la contraseña y cuando la contraseña cambia.
 
 ## Estructura
@@ -90,7 +91,7 @@ rutas  →  esquemas (validación)  →  servicio (reglas de negocio)  →  repo
 - **Máquina de estados**: `confirmada → check-in → check-out` y `confirmada → cancelada`.
 - **Política de cancelación**: gratis hasta `CANCELACION_GRATIS_DIAS` días antes de la llegada (por defecto 2 = 48 h).
   Después se cobra una noche (el promedio por noche de la estadía, con IVA) y queda guardado en `cargoCancelacion`.
-  Solo el personal puede exonerar ese cargo.
+  Solo el personal puede exonerar ese cargo. Se guarda quién canceló (`canceladaPor`: `huesped` u `hotel`) y el huésped lo ve en "Mis reservas".
 - **Reseñas verificadas**: solo el huésped de la reserva, después del check-out, una por reserva.
   Un trigger de la base de datos lo vuelve a comprobar. En público se muestra "Nombre I." sin correo.
 - **Bloqueo de cuentas**: tras `BLOQUEO_INTENTOS` (5) inicios de sesión fallidos de un correo, se bloquea

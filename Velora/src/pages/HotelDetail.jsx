@@ -14,6 +14,7 @@ import { useIdioma } from '../context/IdiomaContext.jsx'
 import { useConsulta } from '../hooks/useConsulta.js'
 import { api } from '../services/api.js'
 import { calcularNoches, hoyLocal, nochesDeEstadia, sumarDias } from '../utils/fechas.js'
+import { cotizarEstadia } from '../utils/tarifas.js'
 
 // El calendario cubre lo que se puede reservar: hasta un año de anticipación (+ la estadía máxima).
 const DIAS_CALENDARIO = 396
@@ -207,7 +208,7 @@ function PanelReserva({ hotel, calendario, entrada, salida, huespedes, habitacio
 export default function HotelDetail() {
   const { id } = useParams()
   const [searchParams] = useSearchParams()
-  const { t, tr, precio } = useIdioma()
+  const { t, tr, precio, fecha } = useIdioma()
   const hoy = hoyLocal()
 
   const { datos: hotel, error, recargar } = useConsulta(`hotel:${id}`, () => api.hoteles.obtener(id))
@@ -257,6 +258,13 @@ export default function HotelDetail() {
     habitacionElegida ??
     (hotel.habitaciones.find((h) => h.capacidad >= huespedesNum && libreEnFechas(h.id)) ?? hotel.habitaciones[0])?.id
   const habitacion = hotel.habitaciones.find((h) => h.id === habitacionId)
+  const temporadas = calendario?.temporadas ?? []
+  // Precio promedio por noche en las fechas elegidas (solo para mostrar; el total exacto lo calcula el servidor).
+  const promedioEnFechas = (precioBase) => {
+    if (!entrada || !salida || salida <= entrada || !temporadas.length) return precioBase
+    const { subtotal, noches } = cotizarEstadia(precioBase, entrada, salida, temporadas, { impuestosPorcentaje: 0, tarifaLimpieza: 0 })
+    return Math.round(subtotal / noches)
+  }
 
   function cambiarFechas(nuevas) {
     setEntrada(nuevas.entrada)
@@ -347,6 +355,11 @@ export default function HotelDetail() {
                       <span className="opcion-habitacion__precio">
                         {precio(h.precio)} {t('hotel.porNoche')}
                       </span>
+                      {promedioEnFechas(h.precio) !== h.precio && (
+                        <span className={`opcion-habitacion__temporada ${promedioEnFechas(h.precio) > h.precio ? 'etiqueta-recargo--alta' : 'etiqueta-recargo--baja'}`}>
+                          {t('hotel.conTusFechas', { precio: precio(promedioEnFechas(h.precio)) })}
+                        </span>
+                      )}
                       {!libre && <span className="opcion-habitacion__ocupada">{t('hotel.noDisponibleFechas')}</span>}
                     </div>
                     {alcanza ? (
@@ -367,6 +380,29 @@ export default function HotelDetail() {
               })}
             </div>
           </section>
+
+          {temporadas.length > 0 && (
+            <section className="tarjeta-seccion" aria-labelledby="titulo-temporadas">
+              <h2 id="titulo-temporadas">{t('hotel.temporadas')}</h2>
+              <p className="dashboard__ayuda">{t('hotel.temporadasAyuda')}</p>
+              <ul className="lista-temporadas">
+                {temporadas.map((x) => (
+                  <li key={`${x.nombre}-${x.inicio}`}>
+                    <span>
+                      <strong>{x.nombre}</strong>
+                      <span className="tabla__subtexto">
+                        {fecha(x.inicio)} – {fecha(x.fin)}
+                      </span>
+                    </span>
+                    <span className={x.recargo > 0 ? 'etiqueta-recargo etiqueta-recargo--alta' : 'etiqueta-recargo etiqueta-recargo--baja'}>
+                      {x.recargo > 0 ? '+' : '−'}
+                      {Math.abs(x.recargo)} %
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section className="tarjeta-seccion" aria-labelledby="titulo-disponibilidad">
             <h2 id="titulo-disponibilidad">{t('hotel.disponibilidad', { habitacion: tr(habitacion, 'nombre') })}</h2>

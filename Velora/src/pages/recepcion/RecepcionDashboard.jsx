@@ -13,6 +13,12 @@ const ESTADO_ETIQUETA = {
   cancelada: 'Cancelada',
 }
 
+const cop = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
+const formatoFechaHora = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short' })
+const CANCELADAS_VISIBLES = 10
+// Día local (AAAA-MM-DD) de un instante guardado en UTC: una cancelación a las 9 p. m. en Colombia cuenta para hoy.
+const diaLocalDe = (iso) => new Date(iso).toLocaleDateString('sv')
+
 const coincide = (r, q) =>
   r.huespedNombre.toLowerCase().includes(q) || r.huespedCorreo.toLowerCase().includes(q) || r.codigo.toLowerCase().includes(q)
 
@@ -44,7 +50,7 @@ function TablaReservas({ reservas, vacio, fechaHoy, ocupada, onConfirmarEntrada,
           ) : (
             reservas.map((r) => (
               <tr key={r.id}>
-                <td>
+                <td className="tabla__sin-corte">
                   {r.codigo}
                   {r.modificaciones.length > 0 && (
                     <>
@@ -60,10 +66,21 @@ function TablaReservas({ reservas, vacio, fechaHoy, ocupada, onConfirmarEntrada,
                 </td>
                 <td>{r.hotelNombre}</td>
                 <td>{r.habitacionNombre}</td>
-                <td>{r.entrada}</td>
-                <td>{r.salida}</td>
+                <td className="tabla__sin-corte">{r.entrada}</td>
+                <td className="tabla__sin-corte">{r.salida}</td>
                 <td>
                   <span className={`etiqueta-estado etiqueta-estado--${r.estado}`}>{ESTADO_ETIQUETA[r.estado] ?? r.estado}</span>
+                  {r.estado === 'cancelada' && (
+                    <>
+                      <br />
+                      <span className="tabla__subtexto">
+                        {{ hotel: 'Por el hotel', huesped: 'Por el huésped' }[r.canceladaPor] ?? 'Cancelada'}
+                        {r.fechaCancelacion && ` · ${formatoFechaHora.format(new Date(r.fechaCancelacion))}`}
+                        <br />
+                        {r.cargoCancelacion > 0 ? `Cargo: ${cop.format(r.cargoCancelacion)}` : 'Sin cargo'}
+                      </span>
+                    </>
+                  )}
                 </td>
                 <td className="tabla__acciones">
                   {['confirmada', 'check-in'].includes(r.estado) && (
@@ -102,6 +119,7 @@ export default function RecepcionDashboard() {
   const [reservaEditando, setReservaEditando] = useState(null)
   const [ocupada, setOcupada] = useState(null)
   const [mensaje, setMensaje] = useState(null)
+  const [verTodasCanceladas, setVerTodasCanceladas] = useState(false)
   const { datos: todas, error, recargar, cargando } = useConsulta('recepcion:reservas', () => api.reservas.listar())
   const fechaHoy = hoyLocal()
 
@@ -112,6 +130,11 @@ export default function RecepcionDashboard() {
   const salidasHoy = todas.filter((r) => r.salida === fechaHoy && r.estado === 'check-in')
   const enCasa = todas.filter((r) => r.estado === 'check-in')
   const proximasLlegadas = todas.filter((r) => r.entrada > fechaHoy && r.estado === 'confirmada').sort((a, b) => a.entrada.localeCompare(b.entrada))
+  // Las canceladas, de la cancelación más reciente a la más antigua: así recepción sabe qué habitaciones se liberaron.
+  const canceladas = todas
+    .filter((r) => r.estado === 'cancelada')
+    .sort((a, b) => (b.fechaCancelacion ?? '').localeCompare(a.fechaCancelacion ?? ''))
+  const canceladasHoy = canceladas.filter((r) => r.fechaCancelacion && diaLocalDe(r.fechaCancelacion) === fechaHoy)
   const q = busqueda.trim().toLowerCase()
   const resultadosBusqueda = q ? todas.filter((r) => coincide(r, q)) : []
 
@@ -168,6 +191,10 @@ export default function RecepcionDashboard() {
           <span>Salidas de hoy</span>
           <strong>{salidasHoy.length}</strong>
         </div>
+        <div className="dashboard__stat">
+          <span>Canceladas hoy</span>
+          <strong>{canceladasHoy.length}</strong>
+        </div>
       </div>
 
       <section className="dashboard__seccion">
@@ -201,6 +228,22 @@ export default function RecepcionDashboard() {
       <section className="dashboard__seccion">
         <h2>Próximas llegadas ({proximasLlegadas.length})</h2>
         <TablaReservas reservas={proximasLlegadas} vacio="No hay reservas confirmadas para los próximos días." {...propsTabla} />
+      </section>
+
+      <section className="dashboard__seccion">
+        <div className="dashboard__seccion-encabezado">
+          <h2>Reservas canceladas ({canceladas.length})</h2>
+          {canceladas.length > CANCELADAS_VISIBLES && (
+            <button type="button" className="tabla__accion" aria-expanded={verTodasCanceladas} onClick={() => setVerTodasCanceladas((v) => !v)}>
+              {verTodasCanceladas ? `Ver solo las ${CANCELADAS_VISIBLES} más recientes` : `Ver las ${canceladas.length}`}
+            </button>
+          )}
+        </div>
+        <TablaReservas
+          reservas={verTodasCanceladas ? canceladas : canceladas.slice(0, CANCELADAS_VISIBLES)}
+          vacio="No hay reservas canceladas."
+          {...propsTabla}
+        />
       </section>
 
       {reservaEditando && (

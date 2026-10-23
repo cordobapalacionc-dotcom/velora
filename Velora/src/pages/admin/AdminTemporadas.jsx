@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ErrorCarga } from '../../components/Cargando.jsx'
 import { useConsulta } from '../../hooks/useConsulta.js'
 import { api } from '../../services/api.js'
@@ -20,6 +20,7 @@ export default function AdminTemporadas() {
   const [editandoId, setEditandoId] = useState(null)
   const [aviso, setAviso] = useState(null)
   const [enviando, setEnviando] = useState(false)
+  const refFormulario = useRef(null)
   const actualizar = (campo, valor) => setFormulario((f) => ({ ...f, [campo]: valor }))
 
   async function guardar(evento) {
@@ -54,6 +55,10 @@ export default function AdminTemporadas() {
   function editar(t) {
     setEditandoId(t.id)
     setFormulario({ nombre: t.nombre, inicio: t.inicio, fin: t.fin, recargo: String(t.recargo), hotelId: t.hotelId ?? '' })
+    setAviso(null)
+    // El formulario está arriba de la tabla: sin esto, con muchas temporadas parece que "Editar" no hace nada.
+    refFormulario.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    refFormulario.current?.querySelector('input')?.focus({ preventScroll: true })
   }
 
   if (error && !datos) return <ErrorCarga error={error} onReintentar={recargar} />
@@ -69,7 +74,8 @@ export default function AdminTemporadas() {
         Si dos temporadas coinciden, se aplica la de mayor recargo. Las reservas ya hechas no cambian de precio.
       </p>
 
-      <form className="form-hotel" onSubmit={guardar}>
+      <form ref={refFormulario} className="form-hotel" onSubmit={guardar}>
+        {editandoId && <p className="dashboard__ayuda"><strong>Editando: {datos?.temporadas.find((t) => t.id === editandoId)?.nombre}</strong></p>}
         <div className="form-hotel__grid">
           <label>
             Nombre
@@ -151,7 +157,7 @@ export default function AdminTemporadas() {
               </tr>
             ) : (
               datos.temporadas.map((t) => (
-                <tr key={t.id} className={t.fin < hoy ? 'tabla__fila--pasada' : undefined}>
+                <tr key={t.id} className={t.id === editandoId ? 'tabla__fila--editando' : t.fin < hoy ? 'tabla__fila--pasada' : undefined}>
                   <td>
                     {t.nombre}
                     {t.fin < hoy && (

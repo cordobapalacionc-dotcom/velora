@@ -555,6 +555,38 @@
 }
 
 /* ---------- Mis reservas ---------- */
+.mis-reservas__grupo + .mis-reservas__grupo {
+  margin-top: 36px;
+}
+.mis-reservas__grupo > h2 {
+  font-size: 24px;
+  margin: 24px 0 14px;
+}
+.tarjeta-reserva h3 {
+  font-size: 22px;
+  margin: 6px 0 2px;
+}
+.tarjeta-reserva h3 a:hover {
+  color: var(--dorado-texto);
+}
+.tarjeta-reserva__cancelacion {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  align-items: flex-start;
+  background: var(--crema-suave);
+  color: var(--texto);
+}
+/* Cuando la canceló el hotel se resalta: el huésped no la canceló y debe enterarse */
+.tarjeta-reserva__cancelacion--hotel {
+  background: #fbeaea;
+  color: #a33636;
+}
+.tarjeta-reserva__cancelacion svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
 .tarjeta-reserva__politica,
 .tarjeta-reserva__modificada {
   margin: 8px 0 0;
@@ -758,4 +790,44 @@
   .preferencias__menu {
     right: -64px;
   }
+}
+
+/* Códigos y fechas en una sola línea (la tabla se desplaza si no cabe) */
+.tabla__sin-corte {
+  white-space: nowrap;
+}
+
+/* Precios por temporada en la página del hotel */
+.opcion-habitacion__temporada {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.lista-temporadas {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.lista-temporadas li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+.lista-temporadas li > span:first-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+/* Fila de la temporada que se está editando */
+.tabla__fila--editando td {
+  background: #f6ecd9;
 }

@@ -5,7 +5,7 @@ const SELECT_RESERVA = `
          hotel_nombre AS hotelNombre, habitacion_nombre AS habitacionNombre,
          huesped_nombre AS huespedNombre, huesped_correo AS huespedCorreo,
          entrada, salida, huespedes, noches, precio_noche AS precioNoche, subtotal, impuestos,
-         tarifa_limpieza AS tarifaLimpieza, total, estado, cargo_cancelacion AS cargoCancelacion,
+         tarifa_limpieza AS tarifaLimpieza, total, estado, cargo_cancelacion AS cargoCancelacion, cancelada_por AS canceladaPor,
          fecha_creacion AS fechaCreacion, fecha_check_in AS fechaCheckIn, fecha_check_out AS fechaCheckOut,
          fecha_cancelacion AS fechaCancelacion,
          (SELECT r.id FROM resenas r WHERE r.reserva_id = reservas.id) AS resenaId
@@ -189,16 +189,17 @@ export const reservasRepositorio = {
 
   /**
    * Cambia el estado solo si la reserva sigue en `estadoActual` (control de concurrencia optimista).
-   * Al cancelar se guarda también el cargo cobrado. Devuelve true si se aplicó el cambio.
+   * Al cancelar se guarda también el cargo cobrado y quién canceló. Devuelve true si se aplicó el cambio.
    */
-  cambiarEstado(id, estadoActual, estadoNuevo, fecha, cargoCancelacion = null) {
+  cambiarEstado(id, estadoActual, estadoNuevo, fecha, cargoCancelacion = null, canceladaPor = null) {
     const columnaFecha = COLUMNA_FECHA_POR_ESTADO[estadoNuevo]
     const { changes } = obtenerDb()
       .prepare(
-        `UPDATE reservas SET estado = ?, ${columnaFecha} = ?, cargo_cancelacion = COALESCE(?, cargo_cancelacion)
+        `UPDATE reservas SET estado = ?, ${columnaFecha} = ?, cargo_cancelacion = COALESCE(?, cargo_cancelacion),
+             cancelada_por = COALESCE(?, cancelada_por)
          WHERE id = ? AND estado = ?`
       )
-      .run(estadoNuevo, fecha, cargoCancelacion, id, estadoActual)
+      .run(estadoNuevo, fecha, cargoCancelacion, canceladaPor, id, estadoActual)
     return changes === 1
   },
 }

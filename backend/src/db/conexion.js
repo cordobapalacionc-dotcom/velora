@@ -36,10 +36,30 @@ export function iniciarDb(ruta = config.dbRuta) {
   db.exec('PRAGMA foreign_keys = ON;')
   db.exec('PRAGMA journal_mode = WAL;')
   db.exec('PRAGMA busy_timeout = 5000;')
+  migrarColumnasNuevas(db)
   db.exec(readFileSync(new URL('./esquema.sql', import.meta.url), 'utf8'))
   db.exec(`PRAGMA user_version = ${VERSION_ESQUEMA};`)
   sembrarSiVacia(db)
   return db
+}
+
+// Columnas que se agregaron después de la v2 sin cambiar nada más: se suman a la tabla existente
+// (ALTER TABLE ... ADD COLUMN) para no tener que borrar la base. Las BD nuevas ya las traen de esquema.sql.
+const COLUMNAS_NUEVAS = [
+  {
+    tabla: 'reservas',
+    columna: 'cancelada_por',
+    definicion: "TEXT CHECK (cancelada_por IS NULL OR cancelada_por IN ('huesped', 'hotel'))",
+  },
+]
+
+function migrarColumnasNuevas(conexion) {
+  for (const { tabla, columna, definicion } of COLUMNAS_NUEVAS) {
+    const columnas = conexion.prepare(`PRAGMA table_info(${tabla})`).all()
+    if (columnas.length && !columnas.some((c) => c.name === columna)) {
+      conexion.exec(`ALTER TABLE ${tabla} ADD COLUMN ${columna} ${definicion}`)
+    }
+  }
 }
 
 export function cerrarDb() {

@@ -7,7 +7,8 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "db:reset": "node src/db/reiniciar.js",
-    "test": "node --test \"tests/**/*.test.js\""
+    "test": "node --test \"tests/**/*.test.js\"",
+    "db:borrar-pruebas": "node src/db/borrar-usuarios-prueba.js"
   },
   "type": "module",
   "dependencies": {

@@ -143,6 +143,8 @@ CREATE TABLE IF NOT EXISTS reservas (
                     CHECK (estado IN ('confirmada', 'check-in', 'check-out', 'cancelada')),
   -- Lo que se cobra al cancelar fuera del plazo gratuito (0 si se canceló a tiempo o el hotel lo exoneró).
   cargo_cancelacion INTEGER CHECK (cargo_cancelacion IS NULL OR cargo_cancelacion BETWEEN 0 AND total),
+  -- Quién canceló: el propio huésped o el hotel (recepción o admin). Así el huésped sabe qué pasó.
+  cancelada_por     TEXT    CHECK (cancelada_por IS NULL OR cancelada_por IN ('huesped', 'hotel')),
   fecha_creacion    TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   fecha_check_in    TEXT,
   fecha_check_out   TEXT,

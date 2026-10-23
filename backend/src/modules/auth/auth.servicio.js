@@ -80,6 +80,17 @@ export const authServicio = {
     // El registro público siempre crea clientes; los roles de personal no se auto-asignan.
     const usuario = usuariosRepositorio.crear({ nombre, correo, contrasenaHash, rol: 'cliente' })
     registrarAcceso({ ...contexto, usuarioId: usuario.id, correo, tipo: 'registro', exito: true })
+    enviarCorreoSinEsperar({
+      para: usuario.correo,
+      asunto: 'Bienvenido a Velora',
+      titulo: 'Tu cuenta está lista',
+      parrafos: [
+        `Hola, ${usuario.nombre}. Gracias por registrarte en Velora.`,
+        'Desde tu cuenta puedes reservar, ver y modificar tus reservas y dejar reseñas después de tu estadía.',
+        'Si no creaste esta cuenta, ignora este correo.',
+      ],
+      boton: { texto: 'Ver hoteles', url: `${config.urlSitio}/buscar` },
+    })
     return respuestaSesion(usuario)
   },
 

@@ -258,12 +258,15 @@ export const reservasServicio = {
     }
 
     let cargo = null
+    let canceladaPor = null
     if (estadoNuevo === 'cancelada') {
+      // Si el huésped cancela su propia reserva es 'huesped'; si lo hace recepción o el admin, 'hotel'.
+      canceladaPor = esPersonal(usuario) ? 'hotel' : 'huesped'
       if (exonerarCargo && !esPersonal(usuario)) throw errores.prohibido('Solo el hotel puede exonerar el cargo por cancelación.')
       cargo = exonerarCargo ? 0 : politicaCancelacion(reserva).cargoSiCancelaHoy
     }
 
-    if (!repo.cambiarEstado(id, regla.desde, estadoNuevo, ahoraISO(), cargo)) {
+    if (!repo.cambiarEstado(id, regla.desde, estadoNuevo, ahoraISO(), cargo, canceladaPor)) {
       throw errores.conflicto('La reserva fue modificada por otra persona. Recarga e intenta de nuevo.')
     }
 
@@ -274,7 +277,7 @@ export const reservasServicio = {
         asunto: `Reserva cancelada ${actualizada.codigo}`,
         titulo: `Tu reserva ${actualizada.codigo} fue cancelada`,
         parrafos: [
-          `Hola, ${actualizada.huespedNombre}. La reserva en ${actualizada.hotelNombre} del ${fechaLarga(actualizada.entrada)} quedó cancelada${esPropietario ? '' : ' por el hotel'}.`,
+          `Hola, ${actualizada.huespedNombre}. La reserva en ${actualizada.hotelNombre} del ${fechaLarga(actualizada.entrada)} quedó cancelada${canceladaPor === 'hotel' ? ' por el hotel' : ''}.`,
           cargo > 0
             ? `Como se canceló dentro de las ${config.reservas.cancelacionGratisDias * 24} horas previas a la llegada, se cobra una noche: ${pesos.format(cargo)}.`
             : 'La cancelación no tiene ningún cargo.',
@@ -304,6 +307,7 @@ const COLUMNAS_CSV = [
   ['Limpieza', (r) => r.tarifaLimpieza],
   ['Total', (r) => r.total],
   ['Cargo por cancelación', (r) => r.cargoCancelacion ?? ''],
+  ['Cancelada por', (r) => ({ huesped: 'Huésped', hotel: 'Hotel' })[r.canceladaPor] ?? ''],
   ['Creada', (r) => r.fechaCreacion],
   ['Modificaciones', (r) => r.modificaciones.length],
 ]

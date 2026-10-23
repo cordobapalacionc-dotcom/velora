@@ -156,6 +156,12 @@ export default function AdminReservas() {
                   </td>
                   <td>
                     <span className={`etiqueta-estado etiqueta-estado--${r.estado}`}>{ESTADO_ETIQUETA[r.estado] ?? r.estado}</span>
+                    {r.estado === 'cancelada' && r.canceladaPor && (
+                      <>
+                        <br />
+                        <span className="tabla__subtexto">{r.canceladaPor === 'hotel' ? 'Por el hotel' : 'Por el huésped'}</span>
+                      </>
+                    )}
                   </td>
                   <td>
                     {['confirmada', 'check-in'].includes(r.estado) && (

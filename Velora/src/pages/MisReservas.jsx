@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { BadgeCheck, CalendarDays, Info, Luggage, ShieldCheck, Star, Users } from 'lucide-react'
+import { BadgeCheck, CalendarDays, CalendarX2, Info, Luggage, ShieldCheck, Star, Users } from 'lucide-react'
 import Cargando, { ErrorCarga } from '../components/Cargando.jsx'
 import Dialogo, { cerrarDialogo } from '../components/Dialogo.jsx'
 import EntradaEstrellas from '../components/EntradaEstrellas.jsx'
@@ -135,6 +135,15 @@ export default function MisReservas() {
   const { reservas, hoteles } = datos
   const imagenDe = (hotelId) => hoteles.find((h) => h.id === hotelId)?.imagenes[0]
   const existeHotel = (hotelId) => hoteles.some((h) => h.id === hotelId)
+  // Primero lo que viene (por fecha de llegada), luego las estadías terminadas y al final las canceladas.
+  const grupos = [
+    { id: 'proximas', reservas: reservas.filter((r) => ['confirmada', 'check-in'].includes(r.estado)).sort((a, b) => a.entrada.localeCompare(b.entrada)) },
+    { id: 'finalizadas', reservas: reservas.filter((r) => r.estado === 'check-out').sort((a, b) => b.salida.localeCompare(a.salida)) },
+    {
+      id: 'canceladas',
+      reservas: reservas.filter((r) => r.estado === 'cancelada').sort((a, b) => (b.fechaCancelacion ?? '').localeCompare(a.fechaCancelacion ?? '')),
+    },
+  ].filter((g) => g.reservas.length > 0)
 
   return (
     <div className="pagina-mis-reservas">
@@ -158,8 +167,13 @@ export default function MisReservas() {
           </Link>
         </div>
       ) : (
+        grupos.map((grupo) => (
+          <section key={grupo.id} className="mis-reservas__grupo" aria-labelledby={`grupo-${grupo.id}`}>
+            <h2 id={`grupo-${grupo.id}`}>
+              {t(`misReservas.grupo.${grupo.id}`)} ({grupo.reservas.length})
+            </h2>
         <ul className="lista-reservas">
-          {reservas.map((r) => {
+          {grupo.reservas.map((r) => {
             const ultimaModificacion = r.modificaciones.at(-1)
             return (
               <li key={r.id} className="tarjeta-reserva">
@@ -167,7 +181,7 @@ export default function MisReservas() {
 
                 <div>
                   <span className={`etiqueta-estado etiqueta-estado--${r.estado}`}>{t(`estadoHuesped.${r.estado}`)}</span>
-                  <h2>{existeHotel(r.hotelId) ? <Link to={`/hotel/${r.hotelId}`}>{r.hotelNombre}</Link> : r.hotelNombre}</h2>
+                  <h3>{existeHotel(r.hotelId) ? <Link to={`/hotel/${r.hotelId}`}>{r.hotelNombre}</Link> : r.hotelNombre}</h3>
                   <p className="tarjeta-reserva__habitacion">{r.habitacionNombre}</p>
                   <div className="tarjeta-reserva__datos">
                     <span className="icono-en-linea">
@@ -193,8 +207,25 @@ export default function MisReservas() {
                       {t('misReservas.modificada', { fecha: fecha(ultimaModificacion.fecha.slice(0, 10)), detalle: ultimaModificacion.detalle })}
                     </p>
                   )}
-                  {r.estado === 'cancelada' && r.cargoCancelacion > 0 && (
-                    <p className="tarjeta-reserva__politica">{t('misReservas.cargoCobrado', { cargo: precio(r.cargoCancelacion) })}</p>
+                  {r.estado === 'cancelada' && (
+                    <p
+                      className={`tarjeta-reserva__cancelacion icono-en-linea ${r.canceladaPor === 'hotel' ? 'tarjeta-reserva__cancelacion--hotel' : ''}`}
+                    >
+                      <CalendarX2 size={15} aria-hidden="true" />
+                      <span>
+                        {t(
+                          r.canceladaPor === 'hotel'
+                            ? 'misReservas.canceladaPorHotel'
+                            : r.canceladaPor === 'huesped'
+                              ? 'misReservas.canceladaPorTi'
+                              : 'misReservas.canceladaEl',
+                          { fecha: fecha(r.fechaCancelacion?.slice(0, 10)) }
+                        )}{' '}
+                        {r.cargoCancelacion > 0
+                          ? t('misReservas.cargoCobrado', { cargo: precio(r.cargoCancelacion) })
+                          : t('misReservas.sinCargoCobrado')}
+                      </span>
+                    </p>
                   )}
                 </div>
 
@@ -223,6 +254,8 @@ export default function MisReservas() {
             )
           })}
         </ul>
+          </section>
+        ))
       )}
 
       {cancelando && (

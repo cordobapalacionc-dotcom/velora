@@ -166,6 +166,8 @@ describe('Política de cancelación', () => {
     assert.equal(r.estado, 200)
     assert.equal(r.json.datos.estado, 'cancelada')
     assert.equal(r.json.datos.cargoCancelacion, 0)
+    assert.equal(r.json.datos.canceladaPor, 'huesped', 'queda registrado que canceló el huésped')
+    assert.ok(r.json.datos.fechaCancelacion)
   })
 
   test('dentro de las 48 horas se cobra una noche; el cliente no puede exonerarla', async () => {
@@ -188,6 +190,10 @@ describe('Política de cancelación', () => {
     const r = await api('POST', `/api/reservas/${json.datos.id}/cancelar`, { body: { exonerarCargo: true }, token: tokenRecepcion })
     assert.equal(r.estado, 200)
     assert.equal(r.json.datos.cargoCancelacion, 0)
+    assert.equal(r.json.datos.canceladaPor, 'hotel', 'queda registrado que canceló el hotel')
+    const mias = (await api('GET', '/api/reservas/mias', { token: tokenCliente })).json.datos
+    assert.equal(mias.find((x) => x.id === json.datos.id).canceladaPor, 'hotel', 'el huésped ve en sus reservas que el hotel la canceló')
+    assert.match(correosPara('clara@correo.com').at(-1).texto, /cancelada por el hotel/)
   })
 
   test('al reservar llega un correo de confirmación con la política', async () => {
@@ -323,6 +329,14 @@ describe('Bloqueo por intentos fallidos', () => {
     for (let i = 0; i < 4; i++) await login('dani@correo.com', 'equivocada1')
     assert.equal((await login('dani@correo.com', 'clave1234')).estado, 200)
     assert.equal((await login('dani@correo.com', 'equivocada1')).estado, 401, 'el contador volvió a cero')
+  })
+})
+
+describe('Correo de bienvenida', () => {
+  test('al registrarse llega un correo de bienvenida a la cuenta nueva', () => {
+    const [bienvenida] = correosPara('clara@correo.com')
+    assert.equal(bienvenida?.asunto, 'Bienvenido a Velora')
+    assert.match(bienvenida.texto, /Clara Cliente/)
   })
 })
 

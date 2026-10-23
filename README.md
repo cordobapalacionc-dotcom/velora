@@ -82,7 +82,7 @@ configura el correo (SMTP) y usa una base de datos alojada.
 - Los registros de acceso (IP y navegador) se borran solos a los 90 días.
 - Imágenes subidas convertidas a WebP en tres tamaños y sin metadatos (como la ubicación GPS).
 - Páginas de administración y recepción cargadas aparte, para que el sitio público sea más liviano.
-- 72 pruebas automáticas del backend (`cd backend && npm test`) que se ejecutan en GitHub Actions en cada cambio.
+- 74 pruebas automáticas del backend (`cd backend && npm test`) que se ejecutan en GitHub Actions en cada cambio.
 
 Documentación completa de la API, sus endpoints y sus reglas: [`backend/README.md`](backend/README.md).
 
